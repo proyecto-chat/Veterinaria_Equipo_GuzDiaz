@@ -9,6 +9,11 @@ namespace Veterinaria.Data.Models
     {
         public string NombreServicio { get; set; }
         public string Descripcion { get; set; }
-        
+
+        public void UpdateDescripcion(string newDescripcion)
+        {
+            this.Descripcion = newDescripcion;
+        }
+
     }
 }

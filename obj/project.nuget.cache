@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Yv1JD8f7sbY=",
+  "dgSpecHash": "+TMsOCZoF9A=",
   "success": true,
-  "projectFilePath": "/home/luis/Documents/cursos/DBPOO/Veterinaria/Veterinaria.csproj",
+  "projectFilePath": "/home/luis/Documents/cursos/DBPOO/Veterinaria_Equipo_GuzDiaz/Veterinaria.csproj",
   "expectedPackageFiles": [
     "/home/luis/.nuget/packages/litedb/5.0.21/litedb.5.0.21.nupkg.sha512",
     "/home/luis/.nuget/packages/microsoft.aspnetcore.openapi/9.0.0/microsoft.aspnetcore.openapi.9.0.0.nupkg.sha512",
