@@ -14,8 +14,15 @@ namespace Veterinaria.controller
         [HttpGet("/dueños")]
         public IActionResult getPeople()
         {
-        
+
             return Ok("");
         }
+
+        [HttpPost("/nuevaReservacion")]
+        public IActionResult CreateResevation([FromBody]RequestCrearServicio data)
+        {
+            return Ok();
+        }
+
     }
 }

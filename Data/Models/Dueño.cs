@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace Veterinaria.Data.Models
 {
-    public class Dueño
-    {
-        public Persona persona { get; set; }
-    }
+    public class Dueño:Persona
+  {
+    public List<Mascota> Mascotas { get; set; }
+  }
 }
