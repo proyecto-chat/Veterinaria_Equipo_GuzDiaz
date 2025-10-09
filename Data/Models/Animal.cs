@@ -5,17 +5,11 @@ using System.Threading.Tasks;
 
 namespace Veterinaria.Data.Models
 {
-    public abstract class Persona
+    public class Animal
     {
         public string Nombre { get; set; }
         public int Edad { get; set; }
-        public string Telefono { get; set; }
-        public string Apellido { get; set; }
-        public string DNI { get; set; }
-        public string Direccion { get; set; }
-
+        public double Peso { get; set; }
+        public double Estatura { get; set; }
     }
-
-
-
 }
