@@ -16,6 +16,4 @@ namespace Veterinaria.Data.Models
 
     }
 
-
-
 }
