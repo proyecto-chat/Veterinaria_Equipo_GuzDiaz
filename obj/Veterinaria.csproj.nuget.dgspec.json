@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/luis/Documents/cursos/DBPOO/Veterinaria/Veterinaria.csproj": {}
+    "/home/luis/Documents/cursos/DBPOO/Veterinaria_Equipo_GuzDiaz/Veterinaria.csproj": {}
   },
   "projects": {
-    "/home/luis/Documents/cursos/DBPOO/Veterinaria/Veterinaria.csproj": {
+    "/home/luis/Documents/cursos/DBPOO/Veterinaria_Equipo_GuzDiaz/Veterinaria.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/luis/Documents/cursos/DBPOO/Veterinaria/Veterinaria.csproj",
+        "projectUniqueName": "/home/luis/Documents/cursos/DBPOO/Veterinaria_Equipo_GuzDiaz/Veterinaria.csproj",
         "projectName": "Veterinaria",
-        "projectPath": "/home/luis/Documents/cursos/DBPOO/Veterinaria/Veterinaria.csproj",
+        "projectPath": "/home/luis/Documents/cursos/DBPOO/Veterinaria_Equipo_GuzDiaz/Veterinaria.csproj",
         "packagesPath": "/home/luis/.nuget/packages/",
-        "outputPath": "/home/luis/Documents/cursos/DBPOO/Veterinaria/obj/",
+        "outputPath": "/home/luis/Documents/cursos/DBPOO/Veterinaria_Equipo_GuzDiaz/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/luis/.nuget/NuGet/NuGet.Config"
