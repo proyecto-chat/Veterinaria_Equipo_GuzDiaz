@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace Veterinaria.Data.Models
 {
-    public class Veterinario
+    public class Veterinario : Persona
     {
-        public Persona persona { get; set; }
-        public Especialidades especialidades { get; set; }
+        public string Matricula { get; set; }
+        public List<Especialidades> especialidades { get; set; }
+        public List<ServicioMedico> servicioMedicos { get; set; }
     }
 }
