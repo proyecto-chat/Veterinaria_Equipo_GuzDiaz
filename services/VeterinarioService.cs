@@ -71,6 +71,32 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             Console.WriteLine($"Registrado {dueño.Nombre} con su mascota {mascota.Nombre}");
         }
 
+        public List<RegistroClinico> ObtenerHistorialClinico(RequestRegisterPet infoPet)
+        {
+            if (infoPet == null)
+            {
+                throw new Exception("La informacion esta vacia");
+            }
+            return infoPet.infoMascota.registroClinicos;
+
+        }
+
+        public List<Mascota> ObtenerMascotaConDueño(RequestRegisterPet infoPet)
+        {
+            if (infoPet == null)
+            {
+                throw new Exception("La infocmacion esta vacia");
+            }
+            return infoPet.infoDueño.Mascotas;
+        }
+
+        public void ActualizarInfoDueño()
+        {
+            
+        }
+
+
+
 
 
 
