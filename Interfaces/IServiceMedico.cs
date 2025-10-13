@@ -10,6 +10,6 @@ namespace Veterinaria_Equipo_GuzDiaz.Interfaces
     {
         public void CrearServicioMedico(RequestCrearServicio newServicio);
         public void FinalizarServicioMedico(RequestFinalizarServico servicioInfo);
-        public void CrearHistorial();
+        public void CrearHistorial(RequestCrearHistorialClinico historialClinico);
     }
 }
