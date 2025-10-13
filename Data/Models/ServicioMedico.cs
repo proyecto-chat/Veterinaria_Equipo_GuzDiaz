@@ -27,6 +27,13 @@ public class RequestCrearServicio
     public Mascota Mascota { get; set; }
 }
 
+public class RequestCrearHistorialClinico
+{
+    public int idSerivcioMedico { get; set; }
+    public string Diagnostico { get; set; }
+    public string Tratamiento { get; set; }
+}
+
 public class RequestFinalizarServico
 {
     public int id { get; set; }
