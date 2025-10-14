@@ -4,22 +4,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Veterinaria.Data.Models;
+using Veterinaria_Equipo_GuzDiaz.DTOs;
 
 namespace Veterinaria.controller
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("Veterinario/")]
     public class VeterinariaController : ControllerBase
     {
-        [HttpGet("/dueños")]
-        public IActionResult getPeople()
+
+        [HttpPost("nuevaMascotas")]
+        public IActionResult RegistrarMascota([FromBody] RequestRegisterPet infoPet)
         {
 
-            return Ok("");
+            return Ok();
         }
 
-        [HttpPost("/nuevaReservacion")]
-        public IActionResult CreateResevation([FromBody]RequestCrearServicio data)
+        [HttpPost("nuevaReservacion")]
+        public IActionResult CreateResevation([FromBody] RequestCrearServicio data)
+        {
+            return Ok();
+        }
+
+        [HttpPost("FinalizarReservaciones")]
+        public IActionResult FinalzarReservaciones([FromBody] string idReservaciones)
         {
             return Ok();
         }
