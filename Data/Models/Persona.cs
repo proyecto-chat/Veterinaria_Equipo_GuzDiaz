@@ -7,9 +7,9 @@ using LiteDB;
 namespace Veterinaria.Data.Models
 {
     public class Persona
-    {   
+    {
         [BsonId]
-        public int id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Nombre { get; set; }
         public int Edad { get; set; }
         public string Telefono { get; set; }
