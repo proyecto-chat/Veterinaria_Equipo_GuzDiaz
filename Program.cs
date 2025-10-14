@@ -1,3 +1,5 @@
+using Veterinaria_Equipo_GuzDiaz.services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +8,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<VeterinarioService>();
 
 var app = builder.Build();
 

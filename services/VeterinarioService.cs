@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LiteDB;
+using Microsoft.VisualBasic;
 using Veterinaria.Data.Models;
 using Veterinaria_Equipo_GuzDiaz.Data.Models;
 using Veterinaria_Equipo_GuzDiaz.DTOs;
@@ -22,6 +23,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         private readonly ILiteCollection<Dueño> _dueños;
         private readonly ILiteCollection<Mascota> _mascotas;
         private readonly ILiteCollection<Especialidades> _especialidades;
+        private readonly ILiteCollection<Veterinario> _veterinarios;
 
         public VeterinarioService()
         {
@@ -29,74 +31,40 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             _dueños = db.GetCollection<Dueño>("dueños");
             _mascotas = db.GetCollection<Mascota>("mascotas");
             _especialidades = db.GetCollection<Especialidades>("especialidades");
+            _veterinarios = db.GetCollection<Veterinario>("veterinarios");
         }
 
-        public void RegistrarMascota(RequestRegisterPet infoPet)
+        public VeterinarioReadDto? register(VeterinarioCreateDto infoVeterinario)
         {
-            if (infoPet == null)
-                throw new Exception("La información está vacía");
-
-            var mascota = new Mascota
+            if (infoVeterinario == null)
             {
-                Nombre = infoPet.infoMascota.Nombre,
-                Edad = infoPet.infoMascota.Edad,
-                Peso = infoPet.infoMascota.Peso,
-                Especie = new Especie
-                {
-                    NombreEpecie = infoPet.infoMascota.Especie.NombreEpecie,
-                    Raza = infoPet.infoMascota.Especie.Raza
-                },
-                registroClinicos = new()
+                throw new Exception("La informacion esta vacia");
+            }
+
+            var veterinario = new Veterinario
+            {
+                Apellido = infoVeterinario.Apellido,
+                Direccion = infoVeterinario.Direccion,
+                DNI = infoVeterinario.DNI,
+                Edad = infoVeterinario.Edad,
+                especialidades = infoVeterinario.Especialidades ?? new List<Especialidades>(),
+                Matricula = infoVeterinario.Matricula,
+                Nombre = infoVeterinario.Nombre,
+                servicioMedicos = new(),
+                Telefono = infoVeterinario.Telefono,
             };
 
-            _mascotas.Insert(mascota);
+            _veterinarios.Insert(veterinario);
 
-            var dueño = new Dueño
+            return new VeterinarioReadDto
             {
-                Nombre = infoPet.infoDueño.Nombre,
-                Apellido = infoPet.infoDueño.Apellido,
-                Edad = infoPet.infoDueño.Edad,
-                Direccion = infoPet.infoDueño.Direccion,
-                Telefono = infoPet.infoDueño.Telefono,
-                DNI = infoPet.infoDueño.DNI,
-                Mascotas = new()
+                Especialidades = new List<EspecialidadReadDto>(),
+                Matricula = infoVeterinario.Matricula,
+                NombreCompleto = $"{infoVeterinario.Nombre}+{infoVeterinario.Apellido} "
             };
 
-            mascota.dueño = dueño;
-            dueño.Mascotas.Add(mascota);
-
-            _dueños.Insert(dueño);
-            _mascotas.Update(mascota); // actualizamos la referencia del dueño
-
-            Console.WriteLine($"Registrado {dueño.Nombre} con su mascota {mascota.Nombre}");
         }
 
-        public List<RegistroClinico> ObtenerHistorialClinico(RequestRegisterPet infoPet)
-        {
-            if (infoPet.infoMascota == null)
-            {
-                throw new Exception("La informacion de la mascota está vacía");
-            }
-            return infoPet.infoMascota.registroClinicos;
-        }
 
-        public List<Mascota> ObtenerMascotasDelDueño(RequestRegisterPet infoPet)
-        {
-            if (infoPet.infoDueño == null)
-            {
-                throw new Exception("La información del dueño está vacía");
-            }
-
-            return infoPet.infoDueño.Mascotas;
-        }
-
-        public void ActualizarInfoDueño(Dueño dueño)
-        {
-            if (dueño == null)
-            {
-                throw new Exception("La información del dueño está vacía");
-            }
-            _dueños.Update(dueño);
-        }
     }
 }
