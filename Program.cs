@@ -10,6 +10,7 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<VeterinarioService>();
+builder.Services.AddScoped<DueñoService>();
 
 var app = builder.Build();
 

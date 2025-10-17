@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Veterinaria_Equipo_GuzDiaz.DTOs;
+using Veterinaria_Equipo_GuzDiaz.services;
 
 namespace Veterinaria_Equipo_GuzDiaz.controller
 {
@@ -10,41 +12,85 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
     [Route("veterinaria/")]
     public class DueñosController : ControllerBase
     {
+        private readonly DueñoService _service;
+        public DueñosController(DueñoService service)
+        {
+            _service = service;
+        }
+
         [HttpPost("dueños")]
-        public IActionResult registarNuevoDueño()
+        public IActionResult registarNuevoDueño([FromBody] DueñoCreateDto data)
         {
-            return Ok();
+            try
+            {
+                var respone = _service.registrarNuevoDueño(data);
+                return Ok(respone);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
         [HttpGet("dueños")]
-        public IActionResult ObtenerTododDueños()
+        public IActionResult ObtenerTodosDueños()
         {
-            return Ok();
+            try
+            {
+                var dueños = _service.ObtenerTodosDueños();
+                return Ok(dueños);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
         [HttpGet("dueños/{id}")]
         public IActionResult obtenerDueño([FromRoute] string id)
         {
-            return Ok();
+            try
+            {
+                var dueño = _service.obtenerDueño(id);
+                if (dueño == null)
+                {
+                    return BadRequest("Usuario no encontrado");
+                }
+                return Ok(dueño);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+                //return BadRequest(ex);
+            }
         }
+
         [HttpPut("dueños/{id}")]
-        public IActionResult actualizarDueño([FromRoute] string id)
+        public IActionResult actualizarDueño([FromRoute] string id, DueñoUpdateDto dueñoUp)
         {
-            return Ok();
+            try
+            {
+                var dueño = _service.actualizarDueño(id, dueñoUp);
+                return Ok(dueño);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
+
         [HttpDelete("dueños/{id}")]
         public IActionResult eliminarDueño([FromRoute] string id)
         {
-            return Ok();
-        }
-        //*** controladores del dueño
-        [HttpGet("/dueño/{id}")]
-        public IActionResult obtenerInfoPersonal([FromRoute] string id)
-        {
-            return Ok();
-        }
-        [HttpPut("/dueño/{id}")]
-        public IActionResult ActualizarInfoPersonal([FromRoute] string id)
-        {
-            return Ok();
+            try
+            {
+                var dueño = _service.eliminarDueño(id);
+                return Ok(dueño);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         //* controladores para las mascotas del dueño

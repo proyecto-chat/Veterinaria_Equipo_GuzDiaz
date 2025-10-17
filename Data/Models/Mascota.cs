@@ -10,7 +10,7 @@ namespace Veterinaria.Data.Models
     public class Mascota
     {
         [BsonId]
-        public Guid id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Nombre { get; set; }
         public int Edad { get; set; }
         public float Peso { get; set; }
@@ -31,7 +31,7 @@ namespace Veterinaria.Data.Models
     {
         [BsonId]
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string NombreEpecie { get; set; }
+        public string NombreEspecie { get; set; }
         public string Raza { get; set; } = string.Empty;
     }
 }
