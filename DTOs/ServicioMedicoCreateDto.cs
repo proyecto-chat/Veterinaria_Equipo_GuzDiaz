@@ -8,6 +8,7 @@ namespace Veterinaria_Equipo_GuzDiaz.DTOs
     public class ServicioMedicoCreateDto
     {
         public string Descripcion { get; set; } = string.Empty;
+        public string Detalles { get; set; } = string.Empty;
         public float Costo { get; set; }
         public Guid VeterinarioId { get; set; }
         public Guid MascotaId { get; set; }
