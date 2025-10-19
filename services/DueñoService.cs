@@ -1,4 +1,5 @@
 using LiteDB;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Veterinaria.Data.Models;
 using Veterinaria_Equipo_GuzDiaz.DTOs;
 
@@ -8,41 +9,72 @@ public class DueñoService
 {
     private const string DB_FILE = "examen.db";
     private readonly ILiteCollection<Dueño> _dueños;
+    private readonly ILiteCollection<Mascota> _mascotas;
+    private readonly ILiteCollection<Especie> _especies;
 
     public DueñoService()
     {
         var db = new LiteDatabase(DB_FILE);
         _dueños = db.GetCollection<Dueño>("dueños");
+        _mascotas = db.GetCollection<Mascota>("mascotas");
+        _especies = db.GetCollection<Especie>("especies");
+    }
+
+    private DueñoReadDto MapToReadDueño(Dueño dueño)
+    {
+        return new DueñoReadDto
+        {
+            Id = dueño.Id,
+            NombreCompleto = $"{dueño.Nombre} {dueño.Apellido}",
+            Mascotas = dueño.Mascotas?.Select(m => new MascotaReadDto
+            {
+                Id = m.Id,
+                Nombre = m.Nombre,
+                Edad = m.Edad,
+                Peso = m.Peso,
+                Especie = new EspecieReadDto
+                {
+                    Id = m.Especie?.Id ?? Guid.Empty,
+                    NombreEspecie = m.Especie?.NombreEspecie ?? "",
+                    Raza = m.Especie?.Raza ?? ""
+                }
+            }).ToList() ?? new List<MascotaReadDto>()
+        };
     }
 
     public DueñoReadDto? registrarNuevoDueño(DueñoCreateDto infoDueño)
     {
         if (infoDueño == null)
         {
-            throw new Exception("La informacion del dueño está vacía");
-        }
-        var dueñoExiste = _dueños.FindOne(d => d.DNI == infoDueño.DNI);
-        if (dueñoExiste != null)
-        {
-            throw new Exception("El dueño ya existe");
+            return null;
         }
         var dueño = new Dueño
         {
+            Id = Guid.NewGuid(),
             Nombre = infoDueño.Nombre,
             Apellido = infoDueño.Apellido,
             Edad = infoDueño.Edad,
             Telefono = infoDueño.Telefono,
             DNI = infoDueño.DNI,
             Direccion = infoDueño.Direccion,
-            Mascotas = infoDueño.Mascotas ?? new List<Mascota>()
+            Mascotas = infoDueño.Mascotas?.Select(m => new Mascota
+            {
+                Id = Guid.NewGuid(),
+                Nombre = m.Nombre,
+                Edad = m.Edad,
+                Peso = m.Peso,
+                Especie = new Especie
+                {
+                    Id = Guid.NewGuid(),
+                    NombreEspecie = m.Especie?.NombreEspecie ?? "",
+                    Raza = m.Especie?.Raza ?? ""
+                },
+            }).ToList() ?? new List<Mascota>()
         };
         _dueños.Insert(dueño);
-        return new DueñoReadDto
-        {
-            Id = dueño.Id,
-            Mascotas = new List<MascotaReadDto>(),
-            NombreCompleto = $"{infoDueño.Nombre} {infoDueño.Apellido}"
-        };
+        var dueñoGuardado = _dueños.FindById(dueño.Id);
+        var resultado = MapToReadDueño(dueñoGuardado);
+        return resultado;
     }
 
     public List<DueñoReadDto> ObtenerTodosDueños()
@@ -69,36 +101,13 @@ public class DueñoService
 
     public DueñoReadDto? obtenerDueño(string id)
     {
-        if (id == null)
-        {
-            return null;
-        }
-        if (!Guid.TryParse(id, out Guid guidId))
+        if (id == null || !Guid.TryParse(id, out Guid guidId))
         {
             return null;
         }
         var dueño = _dueños.FindById(guidId);
-        if (dueño == null)
-        {
-            return null;
-        }
-        return new DueñoReadDto
-        {
-            Id = guidId,
-            NombreCompleto = $"{dueño.Nombre} {dueño.Apellido}",
-            Mascotas = dueño.Mascotas.Select(m => new MascotaReadDto
-            {
-                Id = m.Id,
-                Nombre = m.Nombre,
-                Edad = m.Edad,
-                Peso = m.Peso,
-                Especie = new EspecieReadDto
-                {
-                    NombreEspecie = m.Especie?.NombreEspecie ?? "",
-                    Raza = m.Especie?.Raza ?? ""
-                }
-            }).ToList() ?? new List<MascotaReadDto>()
-        };
+        var resultado = MapToReadDueño(dueño);
+        return resultado;
     }
 
     public bool actualizarDueño(string id, DueñoUpdateDto dueñoUp)
@@ -131,5 +140,30 @@ public class DueñoService
         return _dueños.Delete(guidId);
     }
 
-    
+    public List<MascotaReadDto>? obtenerMascotasDueño(string id)
+    {
+        if (id == null || !Guid.TryParse(id, out Guid guidId))
+        {
+            return null;
+        }
+        var dueño = _dueños.FindById(guidId);
+        if (dueño == null)
+        {
+            return null;
+        }
+        var mascota = dueño.Mascotas.Select(m => new MascotaReadDto
+        {
+            Id = m.Id,
+            Nombre = m.Nombre,
+            Edad = m.Edad,
+            Peso = m.Peso,
+            Especie = new EspecieReadDto
+            {
+                Id = m.Especie.Id,
+                NombreEspecie = m.Especie.NombreEspecie ?? "",
+                Raza = m.Especie.Raza ?? ""
+            }
+        }).ToList();
+        return mascota;
+    }
 }

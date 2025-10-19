@@ -3,37 +3,108 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Veterinaria_Equipo_GuzDiaz.DTOs;
+using Veterinaria_Equipo_GuzDiaz.services;
 
 namespace Veterinaria_Equipo_GuzDiaz.controller
 {
     [ApiController]
-    [Route("Veterinaria")]
+    [Route("veterinaria/")]
     public class MascotasController : ControllerBase
     {
-        [HttpPost("Mascotas")]
-        public IActionResult registarNuevaMascota()
+        private readonly MascotaService _service;
+
+        public MascotasController(MascotaService service)
         {
-            return Ok();
+            _service = service;
         }
-        [HttpGet("Mascotas")]
+
+        [HttpPost("mascotas")]
+        public IActionResult registarNuevaMascota([FromBody] MascotaCreateDto info)
+        {
+            try
+            {
+                var mascota = _service.registrarNuevaMascota(info);
+                return Ok(mascota);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("mascotas")]
         public IActionResult ObtenerTodasMascotas()
         {
-            return Ok();
+            try
+            {
+                var mascotas = _service.obtenerTodasMascotas();
+                return Ok(mascotas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
-        [HttpGet("Mascotas/{id}")]
-        public IActionResult obtenerMascota([FromRoute] string id)
+
+        [HttpGet("mascotas/buscar")]
+        public IActionResult obtenerMascota([FromQuery] string id)
         {
-            return Ok();
+            try
+            {
+                var mascota = _service.obtenerMascota(id);
+                if (mascota == null)
+                {
+                    return NotFound("Mascota no encontrada");
+                }
+                return Ok(mascota);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
-        [HttpPut("Mascotas/{id}")]
-        public IActionResult actualizarMascota([FromRoute]string id)
+
+        [HttpPut("mascotas/actualizar")]
+        public IActionResult actualizarMascota([FromQuery] string id, [FromBody] MascotaUpdateDto mascotaUp)
         {
-            return Ok();
+            try
+            {
+                var actualizada = _service.actualizarMascota(id, mascotaUp);
+                if (actualizada)
+                {
+                    return Ok(new { mensaje = "Mascota actualizada correctamente" });
+                }
+                else
+                {
+                    return NotFound("Mascota no encontrada");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
-        [HttpDelete("Mascotas/{id}")]
-        public IActionResult eliminarMascota([FromRoute] string id)
+
+        [HttpDelete("mascotas/eliminar")]
+        public IActionResult eliminarMascota([FromQuery] string id)
         {
-            return Ok();
-        }    
+            try
+            {
+                var eliminado = _service.eliminarMascota(id);
+                if (eliminado)
+                {
+                    return Ok(new { mensaje = "Mascota eliminada correctamente" });
+                }
+                else
+                {
+                    return NotFound(new { error = "Mascota no encontrada" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 }

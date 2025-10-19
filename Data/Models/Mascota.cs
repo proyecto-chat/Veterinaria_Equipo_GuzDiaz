@@ -16,9 +16,9 @@ namespace Veterinaria.Data.Models
         public float Peso { get; set; }
         public Especie Especie { get; set; }
 
-        [BsonRef("registroclinico")]
+        //[BsonRef("registroclinico")]
         public List<RegistroClinico> registroClinicos { get; set; } = new();
-        [BsonRef("dueños")]
+        //[BsonRef("dueños")]
         public Dueño dueño { get; set; }
 
         public List<RegistroClinico> GetHistorial()

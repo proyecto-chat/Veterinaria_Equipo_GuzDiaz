@@ -16,9 +16,7 @@ namespace Veterinaria_Equipo_GuzDiaz.DTOs
         public string Telefono { get; set; } = string.Empty;
         public string DNI { get; set; } = string.Empty;
         public string Direccion { get; set; } = string.Empty;
-
-        [BsonRef("mascotas")]
-        public List<Mascota> Mascotas { get; set; } = new();
+        public List<MascotaCreateDto> Mascotas { get; set; } = new();
     }
 
 }

@@ -28,7 +28,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { error = ex.Message });
             }
         }
 
@@ -46,32 +46,38 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
             }
         }
 
-        [HttpGet("dueños/{id}")]
-        public IActionResult obtenerDueño([FromRoute] string id)
+        [HttpGet("dueños/buscar")]
+        public IActionResult obtenerDueño([FromQuery] string id)
         {
             try
             {
                 var dueño = _service.obtenerDueño(id);
                 if (dueño == null)
                 {
-                    return BadRequest("Usuario no encontrado");
+                    return NotFound("Usuario no encontrado");
                 }
                 return Ok(dueño);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { error = ex.Message });
-                //return BadRequest(ex);
             }
         }
 
-        [HttpPut("dueños/{id}")]
-        public IActionResult actualizarDueño([FromRoute] string id, DueñoUpdateDto dueñoUp)
+        [HttpPut("dueños/actualizar")]
+        public IActionResult actualizarDueño([FromQuery] string id, [FromBody] DueñoUpdateDto dueñoUp)
         {
             try
             {
-                var dueño = _service.actualizarDueño(id, dueñoUp);
-                return Ok(dueño);
+                var actualizado = _service.actualizarDueño(id, dueñoUp);
+                if (actualizado)
+                {
+                    return Ok(new { mensaje = "Dueño actualizado correctamente" });
+                }
+                else
+                {
+                    return NotFound(new { error = "Dueño no encontrado" });
+                }
             }
             catch (Exception ex)
             {
@@ -79,13 +85,20 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
             }
         }
 
-        [HttpDelete("dueños/{id}")]
-        public IActionResult eliminarDueño([FromRoute] string id)
+        [HttpDelete("dueños/eliminar")]
+        public IActionResult eliminarDueño([FromQuery] string id)
         {
             try
             {
-                var dueño = _service.eliminarDueño(id);
-                return Ok(dueño);
+                var eliminado = _service.eliminarDueño(id);
+                if (eliminado)
+                {
+                    return Ok(new { mensaje = "Dueño eliminado correctamente" });
+                }
+                else
+                {
+                    return NotFound(new { error = "Dueño no encontrado" });
+                }
             }
             catch (Exception ex)
             {
@@ -93,26 +106,18 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
             }
         }
 
-        //* controladores para las mascotas del dueño
-        [HttpGet("/dueño/{id}/mascotas")]
-        public IActionResult obtenerMascotas([FromRoute] string id)
+        [HttpGet("dueños/mascotas")]
+        public IActionResult obtenerMascotas([FromQuery] string id)
         {
-            return Ok();
-        }
-        [HttpPost("/dueño/{id}/mascota")]
-        public IActionResult agregarMascota([FromRoute] string id)
-        {
-            return Ok();
-        }
-        [HttpGet("/dueño/{id}/mascota/{mascotaID}")]
-        public IActionResult obtenerInfoPersonal([FromRoute] string id, [FromRoute] string mascotaID)
-        {
-            return Ok();
-        }
-        [HttpPut("/dueño/{id}/mascota/{mascotaId}")]
-        public IActionResult ActualizarInfoMascota([FromRoute] string id, [FromRoute] string mascotaID)
-        {
-            return Ok();
+            try
+            {
+                var mascotas = _service.obtenerMascotasDueño(id);
+                return Ok(mascotas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }
