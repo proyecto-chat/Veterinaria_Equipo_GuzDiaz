@@ -9,7 +9,7 @@ namespace Veterinaria_Equipo_GuzDiaz.Data.Models
 {
     public class RegistroClinico
     {
-        [BsonId]
+        //[BsonId]
         public Guid Id { get; set; } = Guid.NewGuid();
         public DateTime Fecha { get; set; } = DateTime.Now;
         public string Diagnostico { get; set; } = string.Empty;

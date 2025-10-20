@@ -10,15 +10,15 @@ namespace Veterinaria.Data.Models
     public class Mascota
     {
         [BsonId]
-        public Guid id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Nombre { get; set; }
         public int Edad { get; set; }
         public float Peso { get; set; }
         public Especie Especie { get; set; }
 
-        [BsonRef("registroclinico")]
+        //[BsonRef("registroclinico")]
         public List<RegistroClinico> registroClinicos { get; set; } = new();
-        [BsonRef("dueños")]
+        //[BsonRef("dueños")]
         public Dueño dueño { get; set; }
 
         public List<RegistroClinico> GetHistorial()
@@ -31,7 +31,7 @@ namespace Veterinaria.Data.Models
     {
         [BsonId]
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string NombreEpecie { get; set; }
+        public string NombreEspecie { get; set; }
         public string Raza { get; set; } = string.Empty;
     }
 }

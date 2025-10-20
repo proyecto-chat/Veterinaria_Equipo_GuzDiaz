@@ -8,7 +8,7 @@ namespace Veterinaria.Data.Models
 {
     public class Dueño:Persona
   {
-    [BsonRef("mascotas")]
+    //[BsonRef("mascotas")]
     public List<Mascota> Mascotas { get; set; } = new List<Mascota>();
   }
 }

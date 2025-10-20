@@ -11,8 +11,8 @@ namespace Veterinaria_Equipo_GuzDiaz.DTOs
         public string Nombre { get; set; } = string.Empty;
         public int Edad { get; set; }
         public float Peso { get; set; }
-        public Guid EspecieId { get; set; } // Referencia a especie
-        public Guid DueñoId { get; set; }   // Referencia al dueño
+        //public Guid EspecieId { get; set; }
+        public EspecieCreateDto Especie { get; set; } = new(); 
     }
 
 }

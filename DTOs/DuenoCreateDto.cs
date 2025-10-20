@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LiteDB;
+using Veterinaria.Data.Models;
 
 namespace Veterinaria_Equipo_GuzDiaz.DTOs
 {
@@ -14,6 +16,7 @@ namespace Veterinaria_Equipo_GuzDiaz.DTOs
         public string Telefono { get; set; } = string.Empty;
         public string DNI { get; set; } = string.Empty;
         public string Direccion { get; set; } = string.Empty;
+        public List<MascotaCreateDto> Mascotas { get; set; } = new();
     }
 
 }

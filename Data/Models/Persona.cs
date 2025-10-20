@@ -8,7 +8,7 @@ namespace Veterinaria.Data.Models
 {
     public class Persona
     {
-        [BsonId]
+        //[BsonId]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Nombre { get; set; }
         public int Edad { get; set; }

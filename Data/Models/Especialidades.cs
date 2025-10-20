@@ -9,7 +9,7 @@ namespace Veterinaria.Data.Models
     public class Especialidades
     {
 
-        [BsonId]
+        //[BsonId]
         public Guid Id { get; set; } = Guid.NewGuid();
         public string nombre { get; set; } = string.Empty;
         public string Descripcion { get; set; } = string.Empty;
