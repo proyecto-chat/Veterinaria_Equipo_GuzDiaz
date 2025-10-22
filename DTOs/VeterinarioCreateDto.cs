@@ -18,7 +18,13 @@ namespace Veterinaria_Equipo_GuzDiaz.DTOs
         public string Matricula { get; set; } = string.Empty;
 
         [BsonRef("especialidades")]
-        public List<Especialidades> Especialidades { get; set; } = new();
+        public List<EspecialidadesDTos> Especialidades { get; set; } = new();
+    }
+
+    public class EspecialidadesDTos
+    {
+        public string nombre { get; set; } = string.Empty;
+        public string descripcion { get; set; } = string.Empty;
     }
 
 }
