@@ -20,6 +20,7 @@ namespace Veterinaria.Data.Models
         public List<RegistroClinico> registroClinicos { get; set; } = new();
         //[BsonRef("dueños")]
         public string dueñoDni { get; set; } = string.Empty;
+        public List<Vacuna> Vacunas { get; set; } = new();
 
         public List<RegistroClinico> GetHistorial()
         {
