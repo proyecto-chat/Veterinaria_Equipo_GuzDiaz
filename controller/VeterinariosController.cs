@@ -68,7 +68,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         {
             try
             {
-                var response = _service.actualizarInfoVeterinario(newInfo);
+                var response = _service.actualizarInfoVeterinario(newInfo,id);
                 return Ok("Informacion actualizada");
             }
             catch (Exception ex)

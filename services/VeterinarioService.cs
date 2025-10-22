@@ -17,12 +17,12 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         TODO: actualizar informacion del dueño
     
     */
-    public class VeterinarioService
+    public class VeterinarioService: ServicioGenerico<Veterinario>
     {
         private const string DB_FILE = "examen.db";
         private readonly ILiteCollection<Veterinario> _veterinarios;
 
-        public VeterinarioService()
+        public VeterinarioService(): base("veterinarios")
         {
             var db = new LiteDatabase(DB_FILE);
             _veterinarios = db.GetCollection<Veterinario>("veterinarios");
@@ -46,7 +46,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                     Descripcion = espec.descripcion,
                 });
             }
-    
+
             var veterinario = new Veterinario
             {
                 Apellido = infoVeterinario.Apellido,
@@ -59,8 +59,9 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 servicioMedicos = new(),
                 Telefono = infoVeterinario.Telefono,
             };
-
-            _veterinarios.Insert(veterinario);
+            
+            //! hago uso de la clase abastracta para insertar el veterinario    
+            Insert(veterinario);
 
             return new VeterinarioReadDto
             {
@@ -73,7 +74,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 
         public List<Veterinario> obtenerVeterinarios()
         {
-            var listVeterinarios = _veterinarios.FindAll().ToList();
+            var listVeterinarios = GetAll();
             if (listVeterinarios == null && !listVeterinarios.Any())
             {
                 throw new Exception("no se encontaron veterinarios registrados");
@@ -83,7 +84,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 
         public Veterinario obtenerVeterinarioMatricula(string matricula)
         {
-            var resposne = _veterinarios.FindOne(v => v.Matricula == matricula);
+            var resposne = GetOne(v => v.Matricula == matricula);
             if (resposne == null)
             {
                 throw new Exception("El veterinario no existe");
@@ -91,9 +92,9 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return resposne;
         }
 
-        public bool actualizarInfoVeterinario(VeterinarioUpdateDto newInfo)
+        public bool actualizarInfoVeterinario(VeterinarioUpdateDto newInfo,string matricula)
         {
-            var veterinarioExist = _veterinarios.FindOne(v => v.Matricula == newInfo.Matricula);
+            var veterinarioExist = _veterinarios.FindOne(v => v.Matricula == matricula);
 
             if (veterinarioExist == null)
             {
@@ -123,9 +124,9 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             {
                 veterinarioExist.Edad = newInfo.Edad;
             }
-      
-            
-            var response = _veterinarios.Update(veterinarioExist);
+
+
+            var response = Update(veterinarioExist);
             if (response == false)
             {
                 throw new Exception("no se logro actualizar la informacion del veterinario");
@@ -136,13 +137,8 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         public bool eliminarVeterinario(string matricula)
         {
 
-            var veterinarioFound = _veterinarios.FindOne(v => v.Matricula == matricula);
-            if (veterinarioFound == null)
-            {
-                throw new Exception("El veterinario no existe");
-            }
-            var response = _veterinarios.Delete(veterinarioFound.Id);
-            if (response == false)
+            var response = Delete(v => v.Matricula == matricula);
+            if (!response)
             {
                 throw new Exception("No se logro elimnar al veterinario");
             }
