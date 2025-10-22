@@ -9,11 +9,13 @@ public class MascotaService
 {
     private const string DB_FILE = "examen.db";
     private readonly ILiteCollection<Mascota> _mascotas;
+    private readonly ILiteCollection<Dueño> _dueños;
 
     public MascotaService()
     {
         var db = new LiteDatabase(DB_FILE);
         _mascotas = db.GetCollection<Mascota>("mascotas");
+        _dueños = db.GetCollection<Dueño>("dueños");
     }
 
     private MascotaReadDto MapToReadMascota(Mascota mascota)
@@ -26,15 +28,17 @@ public class MascotaService
             Peso = mascota.Peso,
             Especie = new EspecieReadDto
             {
-                Id = mascota.Especie.Id,
-                NombreEspecie = mascota.Especie.NombreEspecie,
-                Raza = mascota.Especie.Raza
+                Id = mascota.Especie?.Id ?? Guid.Empty,
+                NombreEspecie = mascota.Especie?.NombreEspecie ?? "",
+                Raza = mascota.Especie?.Raza ?? ""
             }
         };
     }
-    public MascotaReadDto? registrarNuevaMascota(MascotaCreateDto infoMascota)
+    
+    public MascotaReadDto? registrarNuevaMascota(string dni, MascotaCreateDto infoMascota)
     {
-        if (infoMascota == null)
+        var dueño = _dueños.FindOne(d => d.DNI.Trim().ToLower() == dni.Trim().ToLower());
+        if (infoMascota == null || dueño == null)
         {
             return null;
         }
@@ -51,12 +55,20 @@ public class MascotaService
                 Raza = infoMascota.Especie?.Raza ?? ""
             },
             registroClinicos = new List<RegistroClinico>(),
+            dueñoDni = dueño.DNI
         };
         _mascotas.Insert(mascota);
+        if (dueño.Mascotas == null)
+        {
+            dueño.Mascotas = new List<Mascota>();
+        }
+        dueño.Mascotas.Add(mascota);
+        _dueños.Update(dueño);
         var mascotaEncontrada = _mascotas.FindById(mascota.Id);
         var resultado = MapToReadMascota(mascotaEncontrada);
         return resultado;
     }
+
 
     public MascotaReadDto? obtenerMascota(string id)
     {

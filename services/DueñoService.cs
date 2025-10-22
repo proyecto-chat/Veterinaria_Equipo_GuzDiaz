@@ -26,6 +26,7 @@ public class DueñoService
         {
             Id = dueño.Id,
             NombreCompleto = $"{dueño.Nombre} {dueño.Apellido}",
+            DNI = dueño.DNI,
             Mascotas = dueño.Mascotas?.Select(m => new MascotaReadDto
             {
                 Id = m.Id,
@@ -56,20 +57,7 @@ public class DueñoService
             Edad = infoDueño.Edad,
             Telefono = infoDueño.Telefono,
             DNI = infoDueño.DNI,
-            Direccion = infoDueño.Direccion,
-            Mascotas = infoDueño.Mascotas?.Select(m => new Mascota
-            {
-                Id = Guid.NewGuid(),
-                Nombre = m.Nombre,
-                Edad = m.Edad,
-                Peso = m.Peso,
-                Especie = new Especie
-                {
-                    Id = Guid.NewGuid(),
-                    NombreEspecie = m.Especie?.NombreEspecie ?? "",
-                    Raza = m.Especie?.Raza ?? ""
-                },
-            }).ToList() ?? new List<Mascota>()
+            Direccion = infoDueño.Direccion
         };
         _dueños.Insert(dueño);
         var dueñoGuardado = _dueños.FindById(dueño.Id);
@@ -80,23 +68,7 @@ public class DueñoService
     public List<DueñoReadDto> ObtenerTodosDueños()
     {
         var dueños = _dueños.FindAll().ToList();
-        return dueños.Select(d => new DueñoReadDto
-        {
-            Id = d.Id,
-            NombreCompleto = $"{d.Nombre} {d.Apellido}",
-            Mascotas = d.Mascotas?.Select(m => new MascotaReadDto
-            {
-                Id = m.Id,
-                Nombre = m.Nombre,
-                Edad = m.Edad,
-                Peso = m.Peso,
-                Especie = new EspecieReadDto
-                {
-                    NombreEspecie = m.Especie?.NombreEspecie ?? "",
-                    Raza = m.Especie?.Raza ?? ""
-                }
-            }).ToList() ?? new List<MascotaReadDto>()
-        }).ToList();
+        return dueños.Select(MapToReadDueño).ToList();
     }
 
     public DueñoReadDto? obtenerDueño(string id)
@@ -140,18 +112,18 @@ public class DueñoService
         return _dueños.Delete(guidId);
     }
 
-    public List<MascotaReadDto>? obtenerMascotasDueño(string id)
+    public List<MascotaReadDto>? obtenerMascotasDueño(string dni)
     {
-        if (id == null || !Guid.TryParse(id, out Guid guidId))
+        if (dni == null)
         {
             return null;
         }
-        var dueño = _dueños.FindById(guidId);
-        if (dueño == null)
+        var mascotasDueño = _mascotas.Find(m => m.dueñoDni == dni).ToList();
+        if (mascotasDueño == null || mascotasDueño.Count == 0)
         {
-            return null;
+            return new List<MascotaReadDto>();
         }
-        var mascota = dueño.Mascotas.Select(m => new MascotaReadDto
+        return mascotasDueño.Select(m => new MascotaReadDto
         {
             Id = m.Id,
             Nombre = m.Nombre,
@@ -159,11 +131,10 @@ public class DueñoService
             Peso = m.Peso,
             Especie = new EspecieReadDto
             {
-                Id = m.Especie.Id,
-                NombreEspecie = m.Especie.NombreEspecie ?? "",
-                Raza = m.Especie.Raza ?? ""
+                Id = m.Especie?.Id ?? Guid.Empty,
+                NombreEspecie = m.Especie?.NombreEspecie ?? "",
+                Raza = m.Especie?.Raza ?? ""
             }
         }).ToList();
-        return mascota;
     }
 }

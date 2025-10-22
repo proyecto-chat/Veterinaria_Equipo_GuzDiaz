@@ -107,11 +107,11 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpGet("dueños/mascotas")]
-        public IActionResult obtenerMascotas([FromQuery] string id)
+        public IActionResult obtenerMascotas([FromQuery] string dni)
         {
             try
             {
-                var mascotas = _service.obtenerMascotasDueño(id);
+                var mascotas = _service.obtenerMascotasDueño(dni);
                 return Ok(mascotas);
             }
             catch (Exception ex)
