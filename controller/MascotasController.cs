@@ -20,11 +20,15 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpPost("mascotas")]
-        public IActionResult registarNuevaMascota([FromBody] MascotaCreateDto info)
+        public IActionResult RegistrarNuevaMascota([FromQuery] string dni, [FromBody] MascotaCreateDto info)
         {
             try
             {
-                var mascota = _service.registrarNuevaMascota(info);
+                var mascota = _service.registrarNuevaMascota(dni, info);
+                if (mascota == null)
+                {
+                    return BadRequest("No se pudo registrar la mascota. Verifica el DNI o los datos enviados.");
+                }
                 return Ok(mascota);
             }
             catch (Exception ex)
