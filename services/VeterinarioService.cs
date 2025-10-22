@@ -34,14 +34,26 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             {
                 throw new Exception("La informacion esta vacia");
             }
-
+            
+            //! recorremos al arreglo y creamos la list de especialidades
+            var especialidadesCreate = new List<Especialidades>();
+            foreach (var espec in infoVeterinario.Especialidades)
+            {
+                especialidadesCreate.Add(new Especialidades
+                {
+                    Id = Guid.NewGuid(),
+                    nombre = espec.nombre,
+                    Descripcion = espec.descripcion,
+                });
+            }
+    
             var veterinario = new Veterinario
             {
                 Apellido = infoVeterinario.Apellido,
                 Direccion = infoVeterinario.Direccion,
                 DNI = infoVeterinario.DNI,
                 Edad = infoVeterinario.Edad,
-                especialidades = infoVeterinario.Especialidades ?? new List<Especialidades>(),
+                especialidades = especialidadesCreate,
                 Matricula = infoVeterinario.Matricula,
                 Nombre = infoVeterinario.Nombre,
                 servicioMedicos = new(),
