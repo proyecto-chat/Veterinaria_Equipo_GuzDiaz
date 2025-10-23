@@ -37,7 +37,7 @@ Instalacion de proyecto usando git usando HTTPS
 
 #### Registrar un dueño
 ```http
-  POST /veterinaria/dueños
+POST /veterinaria/dueños
 ```
 
 El endpoint espera un JSON con la siguiente estructura:
@@ -55,13 +55,13 @@ El endpoint espera un JSON con la siguiente estructura:
 
 #### Obtener toodos los dueños
 ```http
-  GET /veterinaria/dueños
+GET /veterinaria/dueños
 ```
 El endpoint devuevle una lista con todos los clientes que existen en la base de datos
 
 #### Buscar aun dueño en especifico
 ```http
-  GET /veterinaria/dueños/buscar
+GET /veterinaria/dueños/buscar
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
@@ -69,7 +69,7 @@ El endpoint devuevle una lista con todos los clientes que existen en la base de 
 
 #### Actualizar la informacion de un dueño en especifico
 ```http
-  PUT` /veterinaria/dueños/actualizar
+PUT` /veterinaria/dueños/actualizar
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
@@ -90,7 +90,7 @@ El endpoint espera un JSON con la siguiente estructura:
 
 #### Eliminar a un duño de la veterinaria
 ```http
-  DELETE` /veterinaria/dueños/eliminar
+DELETE` /veterinaria/dueños/eliminar
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
@@ -198,7 +198,7 @@ GET` /veterinaria/servicios/
 #### Actualizar la inforamcion de un servicio
 
 ```http  
- PUT /veterinaria/servicios/
+PUT /veterinaria/servicios/
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
@@ -213,7 +213,7 @@ El endpoint espera un JSON con la siguiente estructura:
 #### Eliminar un servicio especifico
 
 ```http 
- DELETE /veterinaria/servicios/
+DELETE /veterinaria/servicios/
 ```
 
 | Parameter | Type   | Description              |
@@ -266,7 +266,7 @@ GET /veterinaria/veterinarios/
 #### Actualizar la informacion de un veterianrio especifico
 
 ```http
-PUT` /veterinaria/veterinarios/{id}
+PUT /veterinaria/veterinarios/{id}
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
