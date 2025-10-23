@@ -1,18 +1,17 @@
 using LiteDB;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Veterinaria.Data.Models;
+using Veterinaria_Equipo_GuzDiaz.Data.DB;
 using Veterinaria_Equipo_GuzDiaz.DTOs;
 
 namespace Veterinaria_Equipo_GuzDiaz.services;
 
 public class DueñoService : ServicioGenerico<Dueño>
 {
-    private const string DB_FILE = "examen.db";
     private readonly ILiteCollection<Mascota> _mascotas;
 
-    public DueñoService() : base("dueños")
+    public DueñoService(LiteDatabase db) : base(db,"dueños")
     {
-        var db = new LiteDatabase(DB_FILE);
         _mascotas = db.GetCollection<Mascota>("mascotas");
     }
 
