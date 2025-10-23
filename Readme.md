@@ -69,7 +69,7 @@ GET /veterinaria/dueños/buscar
 
 #### Actualizar la informacion de un dueño en especifico
 ```http
-PUT` /veterinaria/dueños/actualizar
+PUT /veterinaria/dueños/actualizar
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
@@ -90,7 +90,7 @@ El endpoint espera un JSON con la siguiente estructura:
 
 #### Eliminar a un duño de la veterinaria
 ```http
-DELETE` /veterinaria/dueños/eliminar
+DELETE /veterinaria/dueños/eliminar
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
@@ -98,7 +98,7 @@ DELETE` /veterinaria/dueños/eliminar
 
 #### Obtener las mascotas de un dueño
 ```http
-GET` /veterinaria/dueños/mascotas
+GET /veterinaria/dueños/mascotas
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
@@ -189,7 +189,7 @@ El endpoint devuelve una lista de todos los servicios que se hay realizado
 #### Obtiene la informacion de un servicio en especifico
 
 ```http  
-GET` /veterinaria/servicios/
+GET /veterinaria/servicios/
 ```
 | Parameter | Type   | Description              |
 |-----------|--------|--------------------------|
