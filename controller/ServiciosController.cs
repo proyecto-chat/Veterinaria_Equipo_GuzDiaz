@@ -28,7 +28,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
         }
 

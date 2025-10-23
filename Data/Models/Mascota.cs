@@ -28,12 +28,14 @@ namespace Veterinaria.Data.Models
         }
     }
 
-    public class vacunasAplicadas : Vacuna{
+    public class vacunasAplicadas : Vacuna
+    {
         public DateTime FechaAplicacion { get; set; }
         public bool EstaVencida()
         {
-            return FechaAplicacion < DateTime.Now.AddYears(-1);
+            return FechaAplicacion.AddYears(1) < DateTime.Now;
         }
+
     }
 
     public class Especie

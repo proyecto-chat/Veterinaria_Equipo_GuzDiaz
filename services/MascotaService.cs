@@ -10,7 +10,7 @@ public class MascotaService : ServicioGenerico<Mascota>
 {
     private readonly ILiteCollection<Dueño> _dueños;
 
-    public MascotaService(LiteDatabase db) : base(db,"mascotas")
+    public MascotaService(LiteDatabase db) : base(db, "mascotas")
     {
         _dueños = db.GetCollection<Dueño>("dueños");
     }
@@ -134,11 +134,18 @@ public class MascotaService : ServicioGenerico<Mascota>
     public List<MascotaReadDto> obtenerMascotasConVacunasVencidas()
     {
         var mascotas = GetAll();
-        if (mascotas == null || !mascotas.Any()) throw new Exception("No hay mascotas registradas");
+        if (mascotas == null || !mascotas.Any())
+            throw new Exception("No hay mascotas registradas");
+
         var resultado = mascotas
-            .Where(m => m.Vacunas?.Any(v => v.EstaVencida()) == true)
-            .Select(MapToReadMascota).ToList();
-        if (!resultado.Any()) throw new Exception("No se encontraron mascotas con vacunas vencidas");
+            .Where(m => m.Vacunas != null && m.Vacunas.Any(v => v.FechaAplicacion.AddYears(1) <= DateTime.Now))
+            .Select(MapToReadMascota)
+            .ToList();
+
+        if (!resultado.Any())
+            throw new Exception("No se encontraron mascotas con vacunas vencidas");
+
         return resultado;
     }
+
 }

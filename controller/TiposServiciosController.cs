@@ -84,7 +84,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpPost("/vacunas/registrar")]
-        public IActionResult RegistrarVacuna([FromBody] Vacuna vacuna)
+        public IActionResult RegistrarVacuna([FromBody] VacunaCreateDto vacuna)
         {
             try
             {

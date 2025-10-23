@@ -121,6 +121,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                     Conteo = g.Count()
                 })
                 .OrderByDescending(x => x.Conteo)
+                .Take(3)
                 .ToList();
 
             // Obtenemos los objetos Veterinario desde los IDs
