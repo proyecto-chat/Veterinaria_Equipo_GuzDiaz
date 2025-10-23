@@ -20,7 +20,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpPost("mascotas")]
-        public IActionResult RegistrarNuevaMascota([FromQuery] string dni, [FromBody] MascotaCreateDto info)
+        public IActionResult RegistrarNuevaMascota([FromQuery] string? dni, [FromBody] MascotaCreateDto info)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpGet("mascotas/buscar")]
-        public IActionResult obtenerMascota([FromQuery] string id)
+        public IActionResult obtenerMascota([FromQuery] string? id)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpPut("mascotas/actualizar")]
-        public IActionResult actualizarMascota([FromQuery] string id, [FromBody] MascotaUpdateDto mascotaUp)
+        public IActionResult actualizarMascota([FromQuery] string? id, [FromBody] MascotaUpdateDto mascotaUp)
         {
             try
             {
@@ -91,7 +91,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpDelete("mascotas/eliminar")]
-        public IActionResult eliminarMascota([FromQuery] string id)
+        public IActionResult eliminarMascota([FromQuery] string? id)
         {
             try
             {
@@ -104,6 +104,47 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
                 {
                     return NotFound(new { error = "Mascota no encontrada" });
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+        [HttpGet("mascotas/porespecie")]
+        public IActionResult obtenerMascotasPorEspecies([FromQuery] string? especie)
+        {
+            try
+            {
+                var response = _service.obtenerMascotasPorEspecie(especie);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("mascotas/poredades")]
+        public IActionResult obtenerMascotasPorEdades([FromQuery] int edadInicial, int edadFinal)
+        {
+            try
+            {
+                var response = _service.obtenerMascotasPorEdades(edadInicial, edadFinal);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("mascotas/vacunasvencidas")]
+        public IActionResult obtenerMascotasConVacunasVencidas()
+        {
+            try
+            {
+                var respone = _service.obtenerMascotasConVacunasVencidas();
+                return Ok(respone);
             }
             catch (Exception ex)
             {
