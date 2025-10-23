@@ -7,7 +7,7 @@ using LiteDB;
 
 namespace Veterinaria_Equipo_GuzDiaz.services
 {
-   public class ServicioGenerico<T> where T : class
+    public class ServicioGenerico<T> where T : class
     {
         private readonly ILiteCollection<T> _collection;
         private const string DB_FILE = "examen.db";
@@ -19,6 +19,11 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         }
 
         public List<T> GetAll() => _collection.FindAll().ToList();
+        public List<T> GetList(Expression<Func<T, bool>> predicate)
+        {
+            return _collection.Find(predicate).ToList();
+        }
+
 
         public T? GetOne(Expression<Func<T, bool>> predicate) => _collection.FindOne(predicate);
 

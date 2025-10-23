@@ -13,7 +13,7 @@ namespace Veterinaria_Equipo_GuzDiaz.Data.Models
         public Guid Id { get; set; } = Guid.NewGuid();
         public DateTime Fecha { get; set; } = DateTime.Now;
         public string Diagnostico { get; set; } = string.Empty;
-        public string Tratamiento { get; set; } = string.Empty;
+        public List<TiposDeServicio> Tratamiento { get; set; } = new();
         public Veterinario Veterinario { get; set; }
         public Mascota Mascota { get; set; }
     }

@@ -10,22 +10,10 @@ using Veterinaria_Equipo_GuzDiaz.DTOs;
 
 namespace Veterinaria_Equipo_GuzDiaz.services
 {
-    /*
-        *registrar mascotas u dueños --listo
-        TODO: obtener historial clinico
-        TODO: obtener mascota con sus dueños
-        TODO: actualizar informacion del dueño
-    
-    */
     public class VeterinarioService: ServicioGenerico<Veterinario>
     {
-        private const string DB_FILE = "examen.db";
-        private readonly ILiteCollection<Veterinario> _veterinarios;
-
         public VeterinarioService(): base("veterinarios")
         {
-            var db = new LiteDatabase(DB_FILE);
-            _veterinarios = db.GetCollection<Veterinario>("veterinarios");
         }
 
         public VeterinarioReadDto? register(VeterinarioCreateDto infoVeterinario)
@@ -92,9 +80,28 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return resposne;
         }
 
-        public bool actualizarInfoVeterinario(VeterinarioUpdateDto newInfo,string matricula)
+        // TODO: probar este metodo
+        public List<Veterinario> ObtenerMejoresVeterinarios(DateTime desdeFecha, DateTime hastaFecha)
         {
-            var veterinarioExist = _veterinarios.FindOne(v => v.Matricula == matricula);
+            var veterinarios = GetAll();
+
+            var veterinariosConConteo = veterinarios.Select(v => new
+            {
+                Veterinario = v,
+                ConteoServicios = v.servicioMedicos.Count(s => s.Fecha >= desdeFecha && s.Fecha <= hastaFecha)
+            });
+
+            var mejoresVeterinarios = veterinariosConConteo
+                .OrderByDescending(vc => vc.ConteoServicios)
+                .Select(vc => vc.Veterinario)
+                .ToList();
+
+            return mejoresVeterinarios;
+        }
+
+        public bool actualizarInfoVeterinario(VeterinarioUpdateDto newInfo, string matricula)
+        {
+            var veterinarioExist = GetOne(v => v.Matricula == matricula);
 
             if (veterinarioExist == null)
             {
@@ -125,7 +132,6 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 veterinarioExist.Edad = newInfo.Edad;
             }
 
-
             var response = Update(veterinarioExist);
             if (response == false)
             {
@@ -133,6 +139,14 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             }
             return true;
         }
+
+        //TODO: MModificar el objeto vacuna para que se adapte al DTO
+
+        public RegistroVacunaReadDto asignarVacunas(List<string> vacunas, string idMascota)
+        {
+            return null;
+        }
+    
 
         public bool eliminarVeterinario(string matricula)
         {
