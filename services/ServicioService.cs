@@ -4,23 +4,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using LiteDB;
 using Veterinaria.Data.Models;
+using Veterinaria_Equipo_GuzDiaz.Data.Models;
 using Veterinaria_Equipo_GuzDiaz.DTOs;
 
 namespace Veterinaria_Equipo_GuzDiaz.services
 {
-    public class ServicioService
+    public class ServicioService : ServicioGenerico<ServicioMedico>
     {
         private readonly string DB_FILE = "examen.db";
-        private readonly ILiteCollection<ServicioMedico> _servicioMedico;
         private readonly ILiteCollection<Mascota> _mascota;
         private readonly ILiteCollection<Veterinario> _veterinarios;
+        private readonly RegistroClinicoService _registroClinicoService;
 
-        public ServicioService()
+        public ServicioService(RegistroClinicoService service ) : base("serviciomedico")
         {
             var db = new LiteDatabase(DB_FILE);
-            _servicioMedico = db.GetCollection<ServicioMedico>("serviciomedico");
             _mascota = db.GetCollection<Mascota>("mascotas");
             _veterinarios = db.GetCollection<Veterinario>("veterinarios");
+            _registroClinicoService = service;
         }
 
         public ServicioMedicoReadDto crearServicioMedido(ServicioMedicoCreateDto servicioMedico)
@@ -29,23 +30,23 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             {
                 throw new Exception("La informacion no es correcta");
             }
-            //TODO: buscar ala mascota
+            //** buscamos ala mascota
             var mascostaFound = _mascota.FindById(servicioMedico.MascotaId);
             if (mascostaFound == null)
             {
                 throw new Exception("No se encontro la mascota");
             }
-            //TODO: buscar al veterinario
+            //** buscamos al veterinario
             var veterinarioFound = _veterinarios.FindById(servicioMedico.VeterinarioId);
             if (veterinarioFound == null)
             {
                 throw new Exception("No se encontro al veterinario");
             }
+            //*creamos el servicio medico
             var newServicioMedico = new ServicioMedico
             {
                 Costo = servicioMedico.Costo,
                 Descripcion = servicioMedico.Descripcion,
-                Detalles = servicioMedico.Detalles,
                 Fecha = DateTime.Now,
                 Mascota = mascostaFound,
                 Veterinario = veterinarioFound,
@@ -60,9 +61,12 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                    Descripcion = e.Descripcion
                }).ToList() ?? new List<EspecialidadReadDto>();
 
-            _servicioMedico.Insert(newServicioMedico);
+            //?Guardamos el servicio medico
+            Insert(newServicioMedico);
+            //? Creamos el registro clinico
+            _registroClinicoService.agregarRegistro(servicioMedico, veterinarioFound, mascostaFound);
 
-            //? creamos el DTo servicio medico
+            //? creamos el DTo servicio medico que nos indica la informacion que debemos de devolver
             return new ServicioMedicoReadDto
             {
                 Costo = newServicioMedico.Costo,
@@ -90,9 +94,11 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 
         }
 
+
+        //?Metodos para obtener los servicios medicos
         public List<ServicioMedico> obtenerServicios()
         {
-            var listServicios = _servicioMedico.FindAll().ToList();
+            var listServicios = GetAll();
             if (listServicios == null || listServicios.Any())
             {
                 throw new Exception("No hay servicios registrador");
@@ -100,9 +106,10 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return listServicios;
         }
 
+        //?Metodo para obtener un servicio medico por su id
         public ServicioMedico obtnerServicio(string id)
         {
-            var servicio = _servicioMedico.FindById(id);
+            var servicio = GetOne(S => S.Id == Guid.Parse(id));
             if (servicio == null)
             {
                 throw new Exception("No se encontro la reservacion");
@@ -110,16 +117,18 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return servicio;
         }
 
+        //?Metodod para eliminar un servicio medico
         public bool eliminarServicio(String id)
         {
-            var servicioEliminado = _servicioMedico.Delete(id);
+            //?Le indicamos como debe de buscar al servicio medico que debe eliminar
+            var servicioEliminado = Delete(S => S.Id == Guid.Parse(id));
             if (!servicioEliminado)
             {
                 throw new Exception("No se lo eliminar el servicio medico");
             }
             return servicioEliminado;
         }
-    
-    
+
+
     }
 }

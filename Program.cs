@@ -13,6 +13,7 @@ builder.Services.AddSingleton<VeterinarioService>();
 builder.Services.AddSingleton<DueñoService>();
 builder.Services.AddSingleton<ServicioService>();
 builder.Services.AddSingleton<MascotaService>();
+builder.Services.AddSingleton<RegistroClinicoService>();
 
 var app = builder.Build();
 
