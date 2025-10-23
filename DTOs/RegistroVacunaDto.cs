@@ -8,8 +8,13 @@ namespace Veterinaria_Equipo_GuzDiaz.DTOs
 {
     public class RegistroVacunaDto
     {
-        public string idMascota { get; set; }
         public string nombreMascota { get; set; }
         public List<VacunaReadDto> vacunas { get; set; }
     }
+
+    public class VacunaCreateDto
+  {
+    public string Nombre { get; set; }
+    public string Descripcion { get; set; }
+  }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LiteDB;
 using Veterinaria_Equipo_GuzDiaz.Data.Models;
+using Veterinaria_Equipo_GuzDiaz.DTOs;
 
 namespace Veterinaria_Equipo_GuzDiaz.services
 {
@@ -14,15 +15,21 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 
         }
 
-        public Vacuna Register(Vacuna vacuna)
+        public Vacuna Register(VacunaCreateDto vacuna)
         {
             if (vacuna == null)
             {
                 throw new Exception("La informacion no es correcta");
             }
+            var newVacuna = new Vacuna
+            {
+                Id = Guid.NewGuid(),
+                Nombre = vacuna.Nombre,
+                Descripcion = vacuna.Descripcion,
+            };
 
-            Insert(vacuna);
-            return vacuna;
+            Insert(newVacuna);
+            return newVacuna;
         }
 
         public List<Vacuna> GetAllVaccines()

@@ -50,7 +50,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 Id = Guid.NewGuid(),
                 Costo = servicioMedico.Costo,
                 Descripcion = servicioMedico.Descripcion,
-                Fecha = DateTime.Now,
+                Fecha = servicioMedico.FechaServicio,
                 MascotaId = mascostaFound.Id.ToString(),
                 VeterinarioId = veterinarioFound.Matricula
             };

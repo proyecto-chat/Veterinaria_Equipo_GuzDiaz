@@ -16,7 +16,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         private readonly ILiteCollection<Especialidades> _especialidades;
         private readonly ILiteCollection<Vacuna> _vacunas;
         private readonly MascotaService _mascotaService;
-        public VeterinarioService(LiteDatabase db,MascotaService mascota) : base(db,"veterinarios")
+        public VeterinarioService(LiteDatabase db, MascotaService mascota) : base(db, "veterinarios")
         {
             _especialidades = db.GetCollection<Especialidades>("especialidades");
             _vacunas = db.GetCollection<Vacuna>("vacunas");
@@ -38,7 +38,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 var especialidad = _especialidades.Find(S => S.Id == Guid.Parse(espec)).FirstOrDefault();
                 if (especialidad != null)
                 {
-                    Console.WriteLine(especialidad.nombre);
+                    especialidadesCreate.Add(especialidad);
                 }
 
             }
@@ -154,7 +154,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 
         //TODO: Modificar el objeto vacuna para que se adapte al DTO
 
-        public RegistroVacunaReadDto asignarVacunas(List<string> vacunas, string idMascota)
+        public RegistroVacunaReadDto asignarVacunas(List<string> vacunas, string idMascota, DateTime fechaAplicacion)
         {
             var mascota = _mascotaService.GetOne(m => m.Id == Guid.Parse(idMascota));
 
@@ -173,7 +173,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                         Id = vacuna.Id,
                         Nombre = vacuna.Nombre,
                         Descripcion = vacuna.Descripcion,
-                        FechaAplicacion = DateTime.Now
+                        FechaAplicacion = fechaAplicacion
                     };
 
                     vacunasAplicadas.Add(nuevaVacuna);

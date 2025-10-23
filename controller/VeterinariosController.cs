@@ -123,11 +123,11 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpPost("veterinarios/asignar-vacunas")]
-        public IActionResult asignarVacunasARegistroClinico([FromQuery] string idMascota, [FromBody] List<string> vacunas)
+        public IActionResult asignarVacunasARegistroClinico([FromQuery] string idMascota, [FromBody] List<string> vacunas,[FromQuery] DateTime fechaAplicacion)
         {
             try
             {
-                var response = _service.asignarVacunas(vacunas, idMascota);
+                var response = _service.asignarVacunas(vacunas, idMascota,fechaAplicacion);
                 return Ok(response);
             }
             catch (Exception ex)

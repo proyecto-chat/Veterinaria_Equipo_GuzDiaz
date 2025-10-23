@@ -11,4 +11,5 @@ namespace Veterinaria_Equipo_GuzDiaz.DTOs
         public string nombreMascota { get; set; } = string.Empty;
         public List<Vacuna> vacunas { get; set; } = new();
     }
+    
 }
