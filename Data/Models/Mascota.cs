@@ -17,14 +17,22 @@ namespace Veterinaria.Data.Models
         public Especie Especie { get; set; }
 
         //[BsonRef("registroclinico")]
-        public List<RegistroClinico> registroClinicos { get; set; } = new();
+        public List<Guid> registroClinicos { get; set; } = new();
         //[BsonRef("dueños")]
         public string dueñoDni { get; set; } = string.Empty;
-        public List<Vacuna> Vacunas { get; set; } = new();
+        public List<vacunasAplicadas> Vacunas { get; set; } = new();
 
-        public List<RegistroClinico> GetHistorial()
+        public List<Guid> GetHistorial()
         {
             return registroClinicos;
+        }
+    }
+
+    public class vacunasAplicadas : Vacuna{
+        public DateTime FechaAplicacion { get; set; }
+        public bool EstaVencida()
+        {
+            return FechaAplicacion < DateTime.Now.AddYears(-1);
         }
     }
 

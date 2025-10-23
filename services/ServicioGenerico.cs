@@ -4,18 +4,18 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using LiteDB;
+using Veterinaria_Equipo_GuzDiaz.Data.DB;
 
 namespace Veterinaria_Equipo_GuzDiaz.services
 {
     public class ServicioGenerico<T> where T : class
     {
         private readonly ILiteCollection<T> _collection;
-        protected readonly LiteDatabase _database;
-        private const string DB_FILE = "examen.db";
+        private readonly LiteDatabase _database;
 
-        public ServicioGenerico(string collectionName)
+        public ServicioGenerico(LiteDatabase database, string collectionName)
         {
-            _database = new LiteDatabase(DB_FILE);
+            _database = database;
             _collection = _database.GetCollection<T>(collectionName);
         }
 

@@ -3,16 +3,19 @@ using Veterinaria.Data.Models;
 
 public class ServicioMedico
 {
-    [BsonId]
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public DateTime Fecha { get; set; } = DateTime.Today;
-    public string Descripcion { get; set; } = string.Empty;
+    public Guid Id { get; set; }
+    public float Costo { get; set; }
+    public string Descripcion { get; set; }
+    public DateTime Fecha { get; set; }
 
-    // Relaciones
-    public Veterinario Veterinario { get; set; }
+    public string MascotaId { get; set; }   // Solo el Id
+    public string VeterinarioId { get; set; } // Solo el Id
+
+    [BsonIgnore] // Ignora propiedades que no deben serializarse
     public Mascota Mascota { get; set; }
 
-    public double Costo { get; set; }
-    public DateTime? FechaFinalizacion { get; set; }
+    [BsonIgnore]
+    public Veterinario Veterinario { get; set; }
 }
+
 

@@ -15,13 +15,15 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
     {
 
         private readonly VeterinarioService _service;
-        public VeterinariosController(VeterinarioService service)
+        private readonly RegistroClinicoService _registroClinicoService;
+        public VeterinariosController(VeterinarioService service, RegistroClinicoService registroClinicoService)
         {
             _service = service;
+            _registroClinicoService = registroClinicoService;
         }
 
         [HttpPost("veterinarios")]
-        public IActionResult registrarVeterinario([FromBody]VeterinarioCreateDto data)
+        public IActionResult registrarVeterinario([FromBody] VeterinarioCreateDto data)
         {
             try
             {
@@ -55,26 +57,26 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
             try
             {
                 var response = _service.obtenerVeterinarioMatricula(id);
-            return Ok(response);
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-                
+
             }
         }
         [HttpPut("veterinarios/{id}")]
-        public IActionResult actualizarVeterinario([FromRoute] string id,[FromBody] VeterinarioUpdateDto newInfo)
+        public IActionResult actualizarVeterinario([FromRoute] string id, [FromBody] VeterinarioUpdateDto newInfo)
         {
             try
             {
-                var response = _service.actualizarInfoVeterinario(newInfo,id);
+                var response = _service.actualizarInfoVeterinario(newInfo, id);
                 return Ok("Informacion actualizada");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            } 
+            }
         }
 
         [HttpDelete("veterinarios/{id}")]
@@ -83,15 +85,56 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
             try
             {
                 var response = _service.eliminarVeterinario(id);
-                return Ok("Veterinario eliminado con exito");            
+                return Ok("Veterinario eliminado con exito");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-                
+
             }
         }
 
+        [HttpGet("veterinarios/{id}/registros-clinicos")]
+        public IActionResult obtenerRegistrosClinicosPorVeterinario([FromRoute] string id)
+        {
+            try
+            {
+                var response = _registroClinicoService.obtenerHistorialClinicoPorMascota(Guid.Parse(id));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("veterinarios/con-mas-registros")]
+        public IActionResult obtenerVeterinarioConMasRegistrosClinicos([FromQuery] DateTime desdeFecha, [FromQuery] DateTime hastaFecha)
+        {
+            try
+            {
+                var response = _registroClinicoService.obtenerVeterinarioConMasRegistrosClinicos(desdeFecha, hastaFecha);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("veterinarios/asignar-vacunas")]
+        public IActionResult asignarVacunasARegistroClinico([FromQuery] string idMascota, [FromBody] List<string> vacunas)
+        {
+            try
+            {
+                var response = _service.asignarVacunas(vacunas, idMascota);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }

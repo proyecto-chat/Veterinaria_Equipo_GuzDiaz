@@ -1,5 +1,6 @@
 using LiteDB;
 using Veterinaria.Data.Models;
+using Veterinaria_Equipo_GuzDiaz.Data.DB;
 using Veterinaria_Equipo_GuzDiaz.Data.Models;
 using Veterinaria_Equipo_GuzDiaz.DTOs;
 
@@ -7,12 +8,11 @@ namespace Veterinaria_Equipo_GuzDiaz.services;
 
 public class MascotaService : ServicioGenerico<Mascota>
 {
-    private const string DB_FILE = "examen.db";
     private readonly ILiteCollection<Dueño> _dueños;
 
-    public MascotaService() : base("mascotas")
+    public MascotaService(LiteDatabase db) : base(db,"mascotas")
     {
-        _dueños = _database.GetCollection<Dueño>("dueños");
+        _dueños = db.GetCollection<Dueño>("dueños");
     }
 
     private MascotaReadDto MapToReadMascota(Mascota mascota)
@@ -31,10 +31,12 @@ public class MascotaService : ServicioGenerico<Mascota>
             },
             Vacunas = mascota.Vacunas?.Select(v => new VacunaReadDto
             {
-                Id = v.Id,
-                Nombre = v.Nombre,
-                FechaAplicacion = v.FechaAplicacion
+                nombre = v.Nombre,
+                fechaAplicacion = v.FechaAplicacion,
+                descripcion = v.Descripcion,
+                estaVencida = v.EstaVencida()
             }).ToList() ?? new List<VacunaReadDto>()
+
         };
     }
 
@@ -55,7 +57,7 @@ public class MascotaService : ServicioGenerico<Mascota>
                 NombreEspecie = infoMascota.Especie?.NombreEspecie ?? "",
                 Raza = infoMascota.Especie?.Raza ?? ""
             },
-            registroClinicos = new List<RegistroClinico>(),
+            registroClinicos = new List<Guid>(),
             dueñoDni = dueño.DNI
         };
         Insert(mascota);

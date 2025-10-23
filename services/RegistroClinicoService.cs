@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LiteDB;
 using Veterinaria.Data.Models;
+using Veterinaria_Equipo_GuzDiaz.Data.DB;
 using Veterinaria_Equipo_GuzDiaz.Data.Models;
 using Veterinaria_Equipo_GuzDiaz.DTOs;
 
@@ -11,13 +12,15 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 {
     public class RegistroClinicoService : ServicioGenerico<RegistroClinico>
     {
-        private const string DB_FILE = "examen.db";
         private readonly ILiteCollection<TiposDeServicio> _tiposServicio;
+        private readonly ILiteCollection<Mascota> _mascotas;
+        private readonly ILiteCollection<Veterinario> _veterinarios;
 
-        public RegistroClinicoService() : base("registroclinico")
+        public RegistroClinicoService(LiteDatabase db) : base(db,"registroclinico")
         {
-            var db = new LiteDatabase(DB_FILE);
             _tiposServicio = db.GetCollection<TiposDeServicio>("tiposdeservicio");
+            _mascotas = db.GetCollection<Mascota>("mascotas");
+            _veterinarios = db.GetCollection<Veterinario>("veterinarios");
         }
 
 
@@ -45,8 +48,8 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             {
                 Diagnostico = registro.Descripcion,
                 Fecha = DateTime.Now,
-                Mascota = mascota,
-                Veterinario = veterinario,
+                MascotaId = mascota.Id,
+                VeterinarioId = veterinario.Id,
                 Tratamiento = tiposServicioList,
             });
             return true;
@@ -55,14 +58,23 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         //** Obtenemos el historial clinico de mascota por medio de su id
         public List<RegistroClinicoReadDto> obtenerHistorialClinicoPorMascota(Guid mascotaId)
         {
-            var registros = GetList(R => R.Mascota.Id == mascotaId);
+            var registros = GetList(R => R.MascotaId == mascotaId);
+
+            //* obtengo la mascota para el id
+            var mascota = _mascotas.Find(Mas => Mas.Id == mascotaId).FirstOrDefault();
+
+            if (mascota == null)
+            {
+                throw new Exception($"No se encontró la mascota con ID {mascotaId}");
+            }
+
 
             //*transformamos los registros a DTO
             List<CitasReadDto> citasFinalizadas = registros.Select(r => new CitasReadDto
             {
                 fecha = r.Fecha,
                 diagnostico = r.Diagnostico,
-                nombreVeterinario = $"{r.Veterinario.Nombre} {r.Veterinario.Apellido}",
+                nombreVeterinario = r.VeterinarioId.ToString(),
                 tratamiento = r.Tratamiento?.Select(t => new TiposDeServicio
                 {
                     id = t.id,
@@ -71,8 +83,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 }).ToList() ?? new List<TiposDeServicio>(),
             }).ToList();
 
-            List<VacunaReadDto> vacunasAplicadas = registros
-                .FirstOrDefault()?.Mascota.Vacunas?
+            List<VacunaReadDto> vacunasAplicadas = mascota?.Vacunas
                 .Select(v => new VacunaReadDto
                 {
                     nombre = v.Nombre,
@@ -85,15 +96,42 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             {
                 new RegistroClinicoReadDto
                 {
-                    nombreMascota = registros.FirstOrDefault()?.Mascota.Nombre ?? string.Empty,
+                    nombreMascota = mascota.Nombre,
                     idMascota = mascotaId.ToString(),
                     citas = citasFinalizadas,
                     vacunas = vacunasAplicadas,
                 }
             };
-
-
         }
+        public List<Veterinario> obtenerVeterinarioConMasRegistrosClinicos(DateTime desdeFecha, DateTime hastaFecha)
+        {
+            var registroClinicos = GetAll();
+
+            // Filtramos por fecha
+            var registrosFiltrados = registroClinicos
+                .Where(r => r.Fecha >= desdeFecha && r.Fecha <= hastaFecha)
+                .ToList();
+
+            // Agrupamos por VeterinarioId y contamos los registros
+            var conteoPorVeterinario = registrosFiltrados
+                .GroupBy(r => r.VeterinarioId)
+                .Select(g => new
+                {
+                    VeterinarioId = g.Key,
+                    Conteo = g.Count()
+                })
+                .OrderByDescending(x => x.Conteo)
+                .ToList();
+
+            // Obtenemos los objetos Veterinario desde los IDs
+            var mejoresVeterinarios = conteoPorVeterinario
+                .Select(x => _veterinarios.Find(v => v.Id == x.VeterinarioId).FirstOrDefault())
+                .Where(v => v != null)
+                .ToList();
+
+            return mejoresVeterinarios!;
+        }
+
 
 
     }
@@ -111,7 +149,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
     public class VacunaReadDto
     {
         public string nombre { get; set; }
-        public DateTime fechaAplicacion { get; set; }
+        public DateTime fechaAplicacion { get; set; } = new();
         public string descripcion { get; set; }
         public bool estaVencida { get; set; }
     }

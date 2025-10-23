@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LiteDB;
 using Veterinaria.Data.Models;
+using Veterinaria_Equipo_GuzDiaz.Data.DB;
 using Veterinaria_Equipo_GuzDiaz.Data.Models;
 using Veterinaria_Equipo_GuzDiaz.DTOs;
 
@@ -11,17 +12,18 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 {
     public class ServicioService : ServicioGenerico<ServicioMedico>
     {
-        private readonly string DB_FILE = "examen.db";
         private readonly ILiteCollection<Mascota> _mascota;
         private readonly ILiteCollection<Veterinario> _veterinarios;
-        private readonly RegistroClinicoService _registroClinicoService;
+        private readonly ILiteCollection<RegistroClinico> _registroClinicoService;
+        private readonly ILiteCollection<TiposDeServicio> _tiposServicio;
 
-        public ServicioService(RegistroClinicoService service ) : base("serviciomedico")
+
+        public ServicioService(LiteDatabase db) : base(db, "serviciomedico")
         {
-            var db = new LiteDatabase(DB_FILE);
             _mascota = db.GetCollection<Mascota>("mascotas");
             _veterinarios = db.GetCollection<Veterinario>("veterinarios");
-            _registroClinicoService = service;
+            _registroClinicoService = db.GetCollection<RegistroClinico>("registroclinico");
+            _tiposServicio = db.GetCollection<TiposDeServicio>("tiposdeservicio");
         }
 
         public ServicioMedicoReadDto crearServicioMedido(ServicioMedicoCreateDto servicioMedico)
@@ -31,13 +33,13 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 throw new Exception("La informacion no es correcta");
             }
             //** buscamos ala mascota
-            var mascostaFound = _mascota.FindById(servicioMedico.MascotaId);
+            var mascostaFound = _mascota.Find(M => M.Id == Guid.Parse(servicioMedico.MascotaId)).FirstOrDefault();
             if (mascostaFound == null)
             {
                 throw new Exception("No se encontro la mascota");
             }
             //** buscamos al veterinario
-            var veterinarioFound = _veterinarios.FindById(servicioMedico.VeterinarioId);
+            var veterinarioFound = _veterinarios.Find(V => V.Matricula == servicioMedico.VeterinarioId).FirstOrDefault();
             if (veterinarioFound == null)
             {
                 throw new Exception("No se encontro al veterinario");
@@ -45,12 +47,36 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             //*creamos el servicio medico
             var newServicioMedico = new ServicioMedico
             {
+                Id = Guid.NewGuid(),
                 Costo = servicioMedico.Costo,
                 Descripcion = servicioMedico.Descripcion,
                 Fecha = DateTime.Now,
-                Mascota = mascostaFound,
-                Veterinario = veterinarioFound,
+                MascotaId = mascostaFound.Id.ToString(),
+                VeterinarioId = veterinarioFound.Matricula
             };
+
+            //? Guardamos el servicio medico
+            Insert(newServicioMedico);
+            //? Creamos el registro clinico
+            List<TiposDeServicio> tiposServicioList = new List<TiposDeServicio>();
+
+            foreach (var servicios in servicioMedico.tiposServicio)
+            {
+                var tipoServicio = _tiposServicio.FindById(servicios);
+                if (tipoServicio != null)
+                {
+                    tiposServicioList.Add(tipoServicio);
+                }
+            }
+
+            _registroClinicoService.Insert(new RegistroClinico
+            {
+                Diagnostico = servicioMedico.Descripcion,
+                Fecha = DateTime.Now,
+                MascotaId = mascostaFound.Id,
+                VeterinarioId = veterinarioFound.Id,
+                Tratamiento = tiposServicioList,
+            });
 
             //! creamos el arreglo con las especialiodades del veterinarios
             var especialidadesDto = veterinarioFound.especialidades?
@@ -59,37 +85,35 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                    Id = e.Id,
                    Nombre = e.nombre,
                    Descripcion = e.Descripcion
-               }).ToList() ?? new List<EspecialidadReadDto>();
+               }).ToList();
 
-            //?Guardamos el servicio medico
-            Insert(newServicioMedico);
-            //? Creamos el registro clinico
-            _registroClinicoService.agregarRegistro(servicioMedico, veterinarioFound, mascostaFound);
 
             //? creamos el DTo servicio medico que nos indica la informacion que debemos de devolver
             return new ServicioMedicoReadDto
             {
+                Id = newServicioMedico.Id,
                 Costo = newServicioMedico.Costo,
                 Descripcion = newServicioMedico.Descripcion,
                 Fecha = newServicioMedico.Fecha,
                 Mascota = new MascotaReadDto
                 {
+                    Id = mascostaFound.Id,
+                    Nombre = mascostaFound.Nombre ?? "",
                     Edad = mascostaFound.Edad,
-                    Especie ={
-                        NombreEspecie = mascostaFound.Nombre,
-                        Raza = mascostaFound.Especie.Raza
-                    },
-                    Nombre = mascostaFound.Nombre,
-                    Peso = mascostaFound.Peso
+                    Peso = mascostaFound.Peso,
+                    Especie = new EspecieReadDto
+                    {
+                        Id = mascostaFound.Especie.Id,
+                        NombreEspecie = mascostaFound.Especie.NombreEspecie ?? "",
+                        Raza = mascostaFound.Especie.Raza ?? ""
+                    }
                 },
-                Veterinario =
+                Veterinario = new VeterinarioReadDto
                 {
-                    Matricula = veterinarioFound.Matricula,
-                    NombreCompleto = $"{veterinarioFound.Nombre} {veterinarioFound.Apellido}",
+                    Matricula = veterinarioFound?.Matricula ?? "",
+                    NombreCompleto = $"{veterinarioFound?.Nombre} {veterinarioFound?.Apellido}",
                     Especialidades = especialidadesDto
                 }
-
-
             };
 
         }
@@ -99,7 +123,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         public List<ServicioMedico> obtenerServicios()
         {
             var listServicios = GetAll();
-            if (listServicios == null || listServicios.Any())
+            if (listServicios == null)
             {
                 throw new Exception("No hay servicios registrador");
             }

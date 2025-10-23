@@ -5,16 +5,24 @@ using System.Threading.Tasks;
 using LiteDB;
 using Microsoft.VisualBasic;
 using Veterinaria.Data.Models;
+using Veterinaria_Equipo_GuzDiaz.Data.DB;
 using Veterinaria_Equipo_GuzDiaz.Data.Models;
 using Veterinaria_Equipo_GuzDiaz.DTOs;
 
 namespace Veterinaria_Equipo_GuzDiaz.services
 {
-    public class VeterinarioService: ServicioGenerico<Veterinario>
+    public class VeterinarioService : ServicioGenerico<Veterinario>
     {
-        public VeterinarioService(): base("veterinarios")
+        private readonly ILiteCollection<Especialidades> _especialidades;
+        private readonly ILiteCollection<Vacuna> _vacunas;
+        private readonly MascotaService _mascotaService;
+        public VeterinarioService(LiteDatabase db,MascotaService mascota) : base(db,"veterinarios")
         {
+            _especialidades = db.GetCollection<Especialidades>("especialidades");
+            _vacunas = db.GetCollection<Vacuna>("vacunas");
+            _mascotaService = mascota;
         }
+
 
         public VeterinarioReadDto? register(VeterinarioCreateDto infoVeterinario)
         {
@@ -22,17 +30,17 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             {
                 throw new Exception("La informacion esta vacia");
             }
-            
+
             //! recorremos al arreglo y creamos la list de especialidades
             var especialidadesCreate = new List<Especialidades>();
             foreach (var espec in infoVeterinario.Especialidades)
             {
-                especialidadesCreate.Add(new Especialidades
+                var especialidad = _especialidades.Find(S => S.Id == Guid.Parse(espec)).FirstOrDefault();
+                if (especialidad != null)
                 {
-                    Id = Guid.NewGuid(),
-                    nombre = espec.nombre,
-                    Descripcion = espec.descripcion,
-                });
+                    Console.WriteLine(especialidad.nombre);
+                }
+
             }
 
             var veterinario = new Veterinario
@@ -47,13 +55,17 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 servicioMedicos = new(),
                 Telefono = infoVeterinario.Telefono,
             };
-            
+
             //! hago uso de la clase abastracta para insertar el veterinario    
             Insert(veterinario);
 
             return new VeterinarioReadDto
             {
-                Especialidades = new List<EspecialidadReadDto>(),
+                Especialidades = especialidadesCreate.Select(e => new EspecialidadReadDto
+                {
+                    Id = e.Id,
+                    Nombre = e.nombre
+                }).ToList(),
                 Matricula = infoVeterinario.Matricula,
                 NombreCompleto = $"{infoVeterinario.Nombre}+{infoVeterinario.Apellido} "
             };
@@ -81,14 +93,14 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         }
 
         // TODO: probar este metodo
-        public List<Veterinario> ObtenerMejoresVeterinarios(DateTime desdeFecha, DateTime hastaFecha)
+        public List<Veterinario> obtenerVeterinarioConMasRegistrosClinicos(DateTime desdeFecha, DateTime hastaFecha)
         {
             var veterinarios = GetAll();
 
             var veterinariosConConteo = veterinarios.Select(v => new
             {
                 Veterinario = v,
-                ConteoServicios = v.servicioMedicos.Count(s => s.Fecha >= desdeFecha && s.Fecha <= hastaFecha)
+                ConteoServicios = v.servicioMedicos.Find(s => s.Fecha >= desdeFecha && s.Fecha <= hastaFecha)
             });
 
             var mejoresVeterinarios = veterinariosConConteo
@@ -140,13 +152,45 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return true;
         }
 
-        //TODO: MModificar el objeto vacuna para que se adapte al DTO
+        //TODO: Modificar el objeto vacuna para que se adapte al DTO
 
         public RegistroVacunaReadDto asignarVacunas(List<string> vacunas, string idMascota)
         {
-            return null;
+            var mascota = _mascotaService.GetOne(m => m.Id == Guid.Parse(idMascota));
+
+            if (mascota == null)
+                throw new Exception("La mascota no existe");
+
+            var vacunasAplicadas = new List<Vacuna>();
+
+            foreach (var vacunaIdStr in vacunas)
+            {
+                var vacuna = _vacunas.FindOne(v => v.Id == Guid.Parse(vacunaIdStr));
+                if (vacuna != null)
+                {
+                    var nuevaVacuna = new vacunasAplicadas
+                    {
+                        Id = vacuna.Id,
+                        Nombre = vacuna.Nombre,
+                        Descripcion = vacuna.Descripcion,
+                        FechaAplicacion = DateTime.Now
+                    };
+
+                    vacunasAplicadas.Add(nuevaVacuna);
+                    mascota.Vacunas.Add(nuevaVacuna);
+                }
+            }
+
+            _mascotaService.Update(mascota);
+
+            return new RegistroVacunaReadDto
+            {
+                nombreMascota = mascota.Nombre,
+                vacunas = vacunasAplicadas
+            };
         }
-    
+
+
 
         public bool eliminarVeterinario(string matricula)
         {
