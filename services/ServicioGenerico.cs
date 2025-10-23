@@ -10,12 +10,13 @@ namespace Veterinaria_Equipo_GuzDiaz.services
     public class ServicioGenerico<T> where T : class
     {
         private readonly ILiteCollection<T> _collection;
+        protected readonly LiteDatabase _database;
         private const string DB_FILE = "examen.db";
 
         public ServicioGenerico(string collectionName)
         {
-            var db = new LiteDatabase(DB_FILE);
-            _collection = db.GetCollection<T>(collectionName);
+            _database = new LiteDatabase(DB_FILE);
+            _collection = _database.GetCollection<T>(collectionName);
         }
 
         public List<T> GetAll() => _collection.FindAll().ToList();

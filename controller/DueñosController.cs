@@ -47,11 +47,11 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpGet("dueños/buscar")]
-        public IActionResult obtenerDueño([FromQuery] string id)
+        public IActionResult obtenerDueño([FromQuery] string? dni)
         {
             try
             {
-                var dueño = _service.obtenerDueño(id);
+                var dueño = _service.obtenerDueño(dni);
                 if (dueño == null)
                 {
                     return NotFound("Usuario no encontrado");
@@ -65,11 +65,11 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpPut("dueños/actualizar")]
-        public IActionResult actualizarDueño([FromQuery] string id, [FromBody] DueñoUpdateDto dueñoUp)
+        public IActionResult actualizarDueño([FromQuery] string? dni, [FromBody] DueñoUpdateDto dueñoUp)
         {
             try
             {
-                var actualizado = _service.actualizarDueño(id, dueñoUp);
+                var actualizado = _service.actualizarDueño(dni, dueñoUp);
                 if (actualizado)
                 {
                     return Ok(new { mensaje = "Dueño actualizado correctamente" });
@@ -86,11 +86,11 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpDelete("dueños/eliminar")]
-        public IActionResult eliminarDueño([FromQuery] string id)
+        public IActionResult eliminarDueño([FromQuery] string? dni)
         {
             try
             {
-                var eliminado = _service.eliminarDueño(id);
+                var eliminado = _service.eliminarDueño(dni);
                 if (eliminado)
                 {
                     return Ok(new { mensaje = "Dueño eliminado correctamente" });
@@ -107,12 +107,26 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpGet("dueños/mascotas")]
-        public IActionResult obtenerMascotas([FromQuery] string dni)
+        public IActionResult obtenerMascotas([FromQuery] string? dni)
         {
             try
             {
                 var mascotas = _service.obtenerMascotasDueño(dni);
                 return Ok(mascotas);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpGet("dueños/numeromascotas")]
+        public IActionResult obtenerDueñosConNMascotas([FromQuery] int n)
+        {
+            try
+            {
+                var response = _service.obtenerDueñosConNMascotas(n);
+                return Ok(response);
             }
             catch (Exception ex)
             {
