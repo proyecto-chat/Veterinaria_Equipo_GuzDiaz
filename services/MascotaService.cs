@@ -12,7 +12,6 @@ public class MascotaService : ServicioGenerico<Mascota>
 
     public MascotaService() : base("mascotas")
     {
-        //var db = new LiteDatabase(DB_FILE);
         _dueños = _database.GetCollection<Dueño>("dueños");
     }
 
@@ -29,7 +28,13 @@ public class MascotaService : ServicioGenerico<Mascota>
                 Id = mascota.Especie?.Id ?? Guid.Empty,
                 NombreEspecie = mascota.Especie?.NombreEspecie ?? "",
                 Raza = mascota.Especie?.Raza ?? ""
-            }
+            },
+            Vacunas = mascota.Vacunas?.Select(v => new VacunaReadDto
+            {
+                Id = v.Id,
+                Nombre = v.Nombre,
+                FechaAplicacion = v.FechaAplicacion
+            }).ToList() ?? new List<VacunaReadDto>()
         };
     }
 
@@ -122,5 +127,16 @@ public class MascotaService : ServicioGenerico<Mascota>
             .Select(MapToReadMascota).ToList();
         if (!response.Any()) throw new Exception($"No se encontraron mascotas en el rango de {edadInicial} a {edadFinal}");
         return response;
+    }
+
+    public List<MascotaReadDto> obtenerMascotasConVacunasVencidas()
+    {
+        var mascotas = GetAll();
+        if (mascotas == null || !mascotas.Any()) throw new Exception("No hay mascotas registradas");
+        var resultado = mascotas
+            .Where(m => m.Vacunas?.Any(v => v.EstaVencida()) == true)
+            .Select(MapToReadMascota).ToList();
+        if (!resultado.Any()) throw new Exception("No se encontraron mascotas con vacunas vencidas");
+        return resultado;
     }
 }

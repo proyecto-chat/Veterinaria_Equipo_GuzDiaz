@@ -13,6 +13,7 @@ namespace Veterinaria_Equipo_GuzDiaz.DTOs
         public int Edad { get; set; }
         public float Peso { get; set; }
         public EspecieReadDto Especie { get; set; } = new();
+        public List<VacunaReadDto> Vacunas { get; set; } = new();
     }
 
 }

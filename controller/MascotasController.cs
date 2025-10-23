@@ -137,5 +137,19 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+        [HttpGet("mascotas/vacunasvencidas")]
+        public IActionResult obtenerMascotasConVacunasVencidas()
+        {
+            try
+            {
+                var respone = _service.obtenerMascotasConVacunasVencidas();
+                return Ok(respone);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 }
