@@ -5,17 +5,15 @@ using Veterinaria_Equipo_GuzDiaz.DTOs;
 
 namespace Veterinaria_Equipo_GuzDiaz.services;
 
-public class MascotaService
+public class MascotaService : ServicioGenerico<Mascota>
 {
     private const string DB_FILE = "examen.db";
-    private readonly ILiteCollection<Mascota> _mascotas;
     private readonly ILiteCollection<Dueño> _dueños;
 
-    public MascotaService()
+    public MascotaService() : base("mascotas")
     {
-        var db = new LiteDatabase(DB_FILE);
-        _mascotas = db.GetCollection<Mascota>("mascotas");
-        _dueños = db.GetCollection<Dueño>("dueños");
+        //var db = new LiteDatabase(DB_FILE);
+        _dueños = _database.GetCollection<Dueño>("dueños");
     }
 
     private MascotaReadDto MapToReadMascota(Mascota mascota)
@@ -34,14 +32,12 @@ public class MascotaService
             }
         };
     }
-    
+
     public MascotaReadDto? registrarNuevaMascota(string dni, MascotaCreateDto infoMascota)
     {
+        if (infoMascota == null) return null;
         var dueño = _dueños.FindOne(d => d.DNI.Trim().ToLower() == dni.Trim().ToLower());
-        if (infoMascota == null || dueño == null)
-        {
-            return null;
-        }
+        if (dueño == null) throw new Exception("El dueño no esta registrado");
         var mascota = new Mascota
         {
             Id = Guid.NewGuid(),
@@ -57,66 +53,74 @@ public class MascotaService
             registroClinicos = new List<RegistroClinico>(),
             dueñoDni = dueño.DNI
         };
-        _mascotas.Insert(mascota);
+        Insert(mascota);
         if (dueño.Mascotas == null)
         {
             dueño.Mascotas = new List<Mascota>();
         }
         dueño.Mascotas.Add(mascota);
         _dueños.Update(dueño);
-        var mascotaEncontrada = _mascotas.FindById(mascota.Id);
-        var resultado = MapToReadMascota(mascotaEncontrada);
+        var resultado = MapToReadMascota(mascota);
         return resultado;
     }
 
-
     public MascotaReadDto? obtenerMascota(string id)
     {
-        if (id == null || !Guid.TryParse(id, out Guid guidId))
-        {
-            return null;
-        }
-        var mascota = _mascotas.FindById(guidId);
+        if (string.IsNullOrEmpty(id)) throw new Exception("El id no puede estar vacío");
+        if (!Guid.TryParse(id, out Guid guidId)) throw new Exception("Id con formato incorrecto");
+        var mascota = GetOne(m => m.Id == guidId);
+        if (mascota == null) return null;
         var resultado = MapToReadMascota(mascota);
         return resultado;
     }
 
     public List<MascotaReadDto> obtenerTodasMascotas()
     {
-        var mascotas = _mascotas.FindAll().ToList();
-        return mascotas.Select(m => new MascotaReadDto
-        {
-            Id = m.Id,
-            Nombre = m.Nombre,
-            Edad = m.Edad,
-            Peso = m.Peso,
-            Especie = new EspecieReadDto
-            {
-                NombreEspecie = m.Especie?.NombreEspecie ?? "",
-                Raza = m.Especie?.Raza ?? ""
-            }
-        }).ToList() ?? new List<MascotaReadDto>();
+        var mascotas = GetAll();
+        if (!mascotas.Any()) throw new Exception("No hay mascotas registradas");
+        return mascotas.Select(MapToReadMascota).ToList();
     }
 
     public bool actualizarMascota(string id, MascotaUpdateDto mascotaUp)
     {
-        if (id == null || !Guid.TryParse(id, out Guid guidId))
-        {
-            return false;
-        }
-        var mascota = _mascotas.FindById(guidId);
-        mascota.Nombre = mascotaUp.Nombre ?? "";
+        if (string.IsNullOrEmpty(id)) throw new Exception("El id no puede estar vacío");
+        if (!Guid.TryParse(id, out Guid guidId)) throw new Exception("Id con formato incorrecto");
+        var mascota = GetOne(m => m.Id == guidId);
+        if (mascota == null) return false;
+        mascota.Nombre = mascotaUp.Nombre ?? mascota.Nombre;
         mascota.Edad = mascotaUp.Edad;
         mascota.Peso = mascotaUp.Peso;
-        return _mascotas.Update(mascota);
+        return Update(mascota);
     }
 
     public bool eliminarMascota(string id)
     {
-        if (id == null || !Guid.TryParse(id, out Guid guidId))
-        {
-            return false;
-        }
-        return _mascotas.Delete(guidId);
+        if (string.IsNullOrEmpty(id)) throw new Exception("El id no puede estar vacío");
+        if (!Guid.TryParse(id, out Guid guidId)) throw new Exception("Id con formato incorrecto");
+        return Delete(m => m.Id == guidId);
+    }
+
+    public List<MascotaReadDto> obtenerMascotasPorEspecie(string especie)
+    {
+        if (especie == null) throw new Exception("Especie invalida");
+        var mascotas = GetAll();
+        if (mascotas == null || !mascotas.Any()) throw new Exception("No hay mascotas registradas");
+        var response = mascotas
+            .Where(m => m.Especie.NombreEspecie.ToLower().Contains(especie.ToLower()))
+            .Select(MapToReadMascota).ToList();
+        if (!response.Any()) throw new Exception($"No se encontraron mascotas de especie {especie}");
+        return response;
+    }
+
+    public List<MascotaReadDto> obtenerMascotasPorEdades(int edadInicial, int edadFinal)
+    {
+        if (edadInicial <= 0 || edadFinal <= 0) throw new Exception("Rango de edades invalida");
+        var mascotas = GetAll();
+        if (mascotas == null || !mascotas.Any()) throw new Exception("No hay mascotas registradas");
+        var response = mascotas
+            .Where(m => m.Edad >= edadInicial && m.Edad <= edadFinal)
+            .Select(MapToReadMascota).ToList();
+        if (!response.Any()) throw new Exception($"No se encontraron mascotas en el rango de {edadInicial} a {edadFinal}");
+        return response;
     }
 }
