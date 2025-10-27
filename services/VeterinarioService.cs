@@ -15,15 +15,18 @@ namespace Veterinaria_Equipo_GuzDiaz.services
     {
         private readonly ILiteCollection<Especialidades> _especialidades;
         private readonly ILiteCollection<Vacuna> _vacunas;
+        private readonly ILiteCollection<Veterinario> _veterinario;
         private readonly MascotaService _mascotaService;
         public VeterinarioService(LiteDatabase db, MascotaService mascota) : base(db, "veterinarios")
         {
             _especialidades = db.GetCollection<Especialidades>("especialidades");
             _vacunas = db.GetCollection<Vacuna>("vacunas");
+            _veterinario = db.GetCollection<Veterinario>("veterinarios");
             _mascotaService = mascota;
         }
 
 
+        //* Metodo para registrar un veterinario */
         public VeterinarioReadDto? register(VeterinarioCreateDto infoVeterinario)
         {
             if (infoVeterinario == null)
@@ -35,14 +38,24 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             var especialidadesCreate = new List<Especialidades>();
             foreach (var espec in infoVeterinario.Especialidades)
             {
+                Console.WriteLine("id especi:" + espec);
                 var especialidad = _especialidades.Find(S => S.Id == Guid.Parse(espec)).FirstOrDefault();
                 if (especialidad != null)
                 {
-                    especialidadesCreate.Add(especialidad);
+                    Console.WriteLine("Especialidad encontrad: " + especialidad.Descripcion);
+                    especialidadesCreate.Add(new Especialidades
+                    {
+                        Id = especialidad.Id,
+                        Descripcion = especialidad.Descripcion,
+                        nombre = especialidad.nombre,
+                    });
                 }
-
             }
 
+            string raw = Guid.NewGuid().ToString("N");
+            string plate = raw.Substring(0, 6).ToUpper();
+
+            //! creamos el objeto veterinario
             var veterinario = new Veterinario
             {
                 Apellido = infoVeterinario.Apellido,
@@ -50,7 +63,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 DNI = infoVeterinario.DNI,
                 Edad = infoVeterinario.Edad,
                 especialidades = especialidadesCreate,
-                Matricula = infoVeterinario.Matricula,
+                Matricula = plate,
                 Nombre = infoVeterinario.Nombre,
                 servicioMedicos = new(),
                 Telefono = infoVeterinario.Telefono,
@@ -61,12 +74,13 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 
             return new VeterinarioReadDto
             {
-                Especialidades = especialidadesCreate.Select(e => new EspecialidadReadDto
+                Especialidades = veterinario.especialidades.Select(e => new EspecialidadReadDto
                 {
                     Id = e.Id,
-                    Nombre = e.nombre
+                    Nombre = e.nombre,
+                    Descripcion = e.Descripcion
                 }).ToList(),
-                Matricula = infoVeterinario.Matricula,
+                Matricula = plate,
                 NombreCompleto = $"{infoVeterinario.Nombre}+{infoVeterinario.Apellido} "
             };
 
@@ -74,11 +88,21 @@ namespace Veterinaria_Equipo_GuzDiaz.services
 
         public List<Veterinario> obtenerVeterinarios()
         {
-            var listVeterinarios = GetAll();
+            var listVeterinarios = _veterinario.FindAll().ToList();
             if (listVeterinarios == null && !listVeterinarios.Any())
             {
                 throw new Exception("no se encontaron veterinarios registrados");
             }
+
+            foreach (var vet in listVeterinarios)
+            {
+                foreach (var esp in vet.especialidades)
+                {
+                    Console.WriteLine("especialidad: " + esp.nombre);
+                }
+
+            }
+
             return listVeterinarios;
         }
 
@@ -92,7 +116,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return resposne;
         }
 
-        // TODO: probar este metodo
+        //* Metodo para obetener los veterinarios con mas registros clinicos en un rango de fechas
         public List<Veterinario> obtenerVeterinarioConMasRegistrosClinicos(DateTime desdeFecha, DateTime hastaFecha)
         {
             var veterinarios = GetAll();
@@ -102,7 +126,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 Veterinario = v,
                 ConteoServicios = v.servicioMedicos.Find(s => s.Fecha >= desdeFecha && s.Fecha <= hastaFecha)
             });
-
+            //* Ordenar por conteo descendente y seleccionar los veterinarios
             var mejoresVeterinarios = veterinariosConConteo
                 .OrderByDescending(vc => vc.ConteoServicios)
                 .Select(vc => vc.Veterinario)
@@ -111,10 +135,12 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return mejoresVeterinarios;
         }
 
+        //* Metodo para actualizar la informacion del veterinario
         public bool actualizarInfoVeterinario(VeterinarioUpdateDto newInfo, string matricula)
         {
             var veterinarioExist = GetOne(v => v.Matricula == matricula);
 
+            //* Validaciones
             if (veterinarioExist == null)
             {
                 throw new Exception("El veterinario no existe");
@@ -152,7 +178,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return true;
         }
 
-        //TODO: Modificar el objeto vacuna para que se adapte al DTO
+        //* Modificar el objeto vacuna para que se adapte al DTO
 
         public RegistroVacunaReadDto asignarVacunas(List<string> vacunas, string idMascota, DateTime fechaAplicacion)
         {
@@ -168,6 +194,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 var vacuna = _vacunas.FindOne(v => v.Id == Guid.Parse(vacunaIdStr));
                 if (vacuna != null)
                 {
+                    // ?Crear una nueva instancia de vacunasAplicadas con la fecha de aplicación
                     var nuevaVacuna = new vacunasAplicadas
                     {
                         Id = vacuna.Id,
@@ -191,7 +218,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         }
 
 
-
+        //* Metodo para eliminar un veterinario
         public bool eliminarVeterinario(string matricula)
         {
 

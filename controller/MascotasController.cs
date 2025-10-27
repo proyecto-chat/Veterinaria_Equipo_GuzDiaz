@@ -125,11 +125,11 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         }
 
         [HttpGet("mascotas/poredades")]
-        public IActionResult obtenerMascotasPorEdades([FromQuery] int edadInicial, int edadFinal)
+        public IActionResult obtenerMascotasPorEdades([FromQuery] int edadInicial, int edadFinal, string especie)
         {
             try
             {
-                var response = _service.obtenerMascotasPorEdades(edadInicial, edadFinal);
+                var response = _service.obtenerMascotasPorEdades(edadInicial, edadFinal,especie);
                 return Ok(response);
             }
             catch (Exception ex)

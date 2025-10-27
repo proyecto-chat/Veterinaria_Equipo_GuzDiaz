@@ -119,17 +119,28 @@ public class MascotaService : ServicioGenerico<Mascota>
         return response;
     }
 
-    public List<MascotaReadDto> obtenerMascotasPorEdades(int edadInicial, int edadFinal)
+    public List<MascotaReadDto> obtenerMascotasPorEdades(int edadInicial, int edadFinal, string especie)
     {
-        if (edadInicial <= 0 || edadFinal <= 0) throw new Exception("Rango de edades invalida");
-        var mascotas = GetAll();
-        if (mascotas == null || !mascotas.Any()) throw new Exception("No hay mascotas registradas");
+        if (edadInicial < 0 || edadFinal < 0)
+            throw new ArgumentException("La edad no puede ser negativa");
+
+        if (edadInicial > edadFinal)
+            throw new ArgumentException("El rango de edades es inválido");
+
+        var mascotas = GetAll() ?? new List<Mascota>();
+
         var response = mascotas
-            .Where(m => m.Edad >= edadInicial && m.Edad <= edadFinal)
-            .Select(MapToReadMascota).ToList();
-        if (!response.Any()) throw new Exception($"No se encontraron mascotas en el rango de {edadInicial} a {edadFinal}");
+            .Where(m =>
+                m.Edad >= edadInicial &&
+                m.Edad <= edadFinal &&
+                m.Especie?.NombreEspecie?.Equals(especie, StringComparison.OrdinalIgnoreCase) == true
+            )
+            .Select(MapToReadMascota)
+            .ToList();
+
         return response;
     }
+
 
     public List<MascotaReadDto> obtenerMascotasConVacunasVencidas()
     {

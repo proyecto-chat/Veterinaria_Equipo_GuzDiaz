@@ -113,7 +113,7 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
         {
             try
             {
-                var response = _registroClinicoService.obtenerVeterinarioConMasRegistrosClinicos(desdeFecha, hastaFecha);
+                var response = _registroClinicoService.ObtenerVeterinarioConMasRegistrosClinicos(desdeFecha, hastaFecha);
                 return Ok(response);
             }
             catch (Exception ex)

@@ -16,7 +16,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
         private readonly ILiteCollection<Mascota> _mascotas;
         private readonly ILiteCollection<Veterinario> _veterinarios;
 
-        public RegistroClinicoService(LiteDatabase db) : base(db,"registroclinico")
+        public RegistroClinicoService(LiteDatabase db) : base(db, "registroclinico")
         {
             _tiposServicio = db.GetCollection<TiposDeServicio>("tiposdeservicio");
             _mascotas = db.GetCollection<Mascota>("mascotas");
@@ -103,16 +103,16 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 }
             };
         }
-        public List<Veterinario> obtenerVeterinarioConMasRegistrosClinicos(DateTime desdeFecha, DateTime hastaFecha)
+        public List<VeterinarioFilter> ObtenerVeterinarioConMasRegistrosClinicos(DateTime desdeFecha, DateTime hastaFecha)
         {
-            var registroClinicos = GetAll();
+            var registrosClinicos = GetAll();
 
             // Filtramos por fecha
-            var registrosFiltrados = registroClinicos
+            var registrosFiltrados = registrosClinicos
                 .Where(r => r.Fecha >= desdeFecha && r.Fecha <= hastaFecha)
                 .ToList();
 
-            // Agrupamos por VeterinarioId y contamos los registros
+            // Agrupamos por VeterinarioId y contamos registros
             var conteoPorVeterinario = registrosFiltrados
                 .GroupBy(r => r.VeterinarioId)
                 .Select(g => new
@@ -124,16 +124,30 @@ namespace Veterinaria_Equipo_GuzDiaz.services
                 .Take(3)
                 .ToList();
 
-            // Obtenemos los objetos Veterinario desde los IDs
             var mejoresVeterinarios = conteoPorVeterinario
-                .Select(x => _veterinarios.Find(v => v.Id == x.VeterinarioId).FirstOrDefault())
+                .Select(x =>
+                {
+                    var v = _veterinarios.Find(vet => vet.Id == x.VeterinarioId).FirstOrDefault();
+                    if (v == null) return null;
+
+                    return new VeterinarioFilter
+                    {
+                        Matricula = v.Matricula,
+                        Especialidades = v.especialidades,
+                        ServicioMedicos = v.servicioMedicos.Count,
+                        Nombre = v.Nombre,
+                        Apellido = v.Apellido,
+                        Edad = v.Edad,
+                        Telefono = v.Telefono,
+                        Direccion = v.Direccion,
+                    };
+                })
                 .Where(v => v != null)
-                .ToList();
+                .ToList()!;
 
-            return mejoresVeterinarios!;
+
+            return mejoresVeterinarios;
         }
-
-
 
     }
 
