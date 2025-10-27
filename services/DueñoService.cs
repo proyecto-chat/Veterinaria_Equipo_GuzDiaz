@@ -22,6 +22,8 @@ public class DueñoService : ServicioGenerico<Dueño>
             Id = dueño.Id,
             NombreCompleto = $"{dueño.Nombre} {dueño.Apellido}",
             DNI = dueño.DNI,
+            Direccion = dueño.Direccion,
+            Telefono = dueño.Telefono,
             Mascotas = dueño.Mascotas?.Select(m => new MascotaReadDto
             {
                 Id = m.Id,

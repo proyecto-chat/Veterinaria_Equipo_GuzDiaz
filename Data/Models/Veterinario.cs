@@ -10,7 +10,6 @@ namespace Veterinaria.Data.Models
     {
         public string Matricula { get; set; } = string.Empty;
 
-        [BsonRef("especialidades")]
         public List<Especialidades> especialidades { get; set; } = new();
         [BsonRef("serviciomedico")]
         public List<ServicioMedico> servicioMedicos { get; set; } = new();
