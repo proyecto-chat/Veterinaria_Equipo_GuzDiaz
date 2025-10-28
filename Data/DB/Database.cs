@@ -14,7 +14,7 @@ namespace Veterinaria_Equipo_GuzDiaz.Data.DB
     {
         private static readonly Lazy<LiteDatabase> _instance = new Lazy<LiteDatabase>(() =>
         {
-            return new LiteDatabase("prueba.db");
+            return new LiteDatabase("pruebaDos.db");
         });
 
         public static LiteDatabase Instance => _instance.Value;
