@@ -106,6 +106,16 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             return listVeterinarios;
         }
 
+        public Veterinario obtenerVeterinarioporID(string id)
+        {
+            var resposne = GetOne(v => v.Id == Guid.Parse(id));
+            if (resposne == null)
+            {
+                throw new Exception("El veterinario no existe");
+            }
+            return resposne;
+        }
+
         public Veterinario obtenerVeterinarioMatricula(string matricula)
         {
             var resposne = GetOne(v => v.Matricula == matricula);

@@ -65,6 +65,22 @@ namespace Veterinaria_Equipo_GuzDiaz.controller
 
             }
         }
+
+        [HttpGet("veterinarios/{id}/id")]
+        public IActionResult obtenerVeterinarioByID([FromRoute] string id)
+        {
+            try
+            {
+                var response = _service.obtenerVeterinarioporID(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+
+            }
+        }
+
         [HttpPut("veterinarios/{id}")]
         public IActionResult actualizarVeterinario([FromRoute] string id, [FromBody] VeterinarioUpdateDto newInfo)
         {
