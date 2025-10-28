@@ -74,7 +74,7 @@ namespace Veterinaria_Equipo_GuzDiaz.services
             {
                 fecha = r.Fecha,
                 diagnostico = r.Diagnostico,
-                nombreVeterinario = r.VeterinarioId.ToString(),
+                nombreVeterinario = _veterinarios.Find(vet => vet.Id == r.VeterinarioId).FirstOrDefault().Nombre,
                 tratamiento = r.Tratamiento?.Select(t => new TiposDeServicio
                 {
                     id = t.id,
